@@ -1,0 +1,43 @@
+version: "3"
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - PGPASSWORD=postgres
+    volumes:
+      - postgres/migrate.sql /docker-entrypoint.d/init.sql
+      - postgres/migrate.sql /docker-entrypoint-initdb.d/init.sql
+    networks:
+      cafe-network:
+        ipv4_address: 172.18.0.3
+  back:
+    image: maven
+    ports:
+      - "8080:8080"
+    volumes:
+      - cafe_kouno_back/target/:/root/cafe/
+    command: ["java", "-jar", "/root/api/target/AmazingWorldOfEmoji-0.0.1.jar"]
+    networks:
+      cafe-network:
+        ipv4_address: 172.18.0.2
+    depends_on:
+      - postgres
+  front:
+    ports:
+      - "80:80"
+    tty: true
+    networks:
+      cafe-network:
+        ipv4_address: 172.18.0.4
+    depends_on:
+      - back
+networks:
+  cafe-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
