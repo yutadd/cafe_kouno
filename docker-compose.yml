@@ -18,14 +18,17 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - cafe_kouno_back/target/:/root/cafe/
-    command: ["java", "-jar", "/root/api/target/AmazingWorldOfEmoji-0.0.1.jar"]
+      - /cafe_kouno_back/target/:/root/cafe/
+    command: ["java", "-jar", "/root/cafe/cafe_kouno_back-0.0.1-SNAPSHOT.jar"]
     networks:
       cafe-network:
         ipv4_address: 172.18.0.2
     depends_on:
       - postgres
   front:
+    image: nginx
+    volumes:
+      - /cafe_kouno_front/build/:/usr/share/nginx/html
     ports:
       - "80:80"
     tty: true
