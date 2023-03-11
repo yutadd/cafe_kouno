@@ -8,7 +8,7 @@ public class CafeKounoBackApplication {
 
 	//アクティベーションを行うためのページ（フロントエンド）のアドレスとポート
 public static String domain="localhost";
-public static int port=80;
+public static int port=8080;
 
 	public static void main(String[] args) {
 		SpringApplication.run(CafeKounoBackApplication.class, args);
