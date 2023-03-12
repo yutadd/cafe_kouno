@@ -8,12 +8,13 @@
 }
 .header-container {
   position: relative;
-}
-.header-title {
-  font-size: 32px;
-  color: #707070;
-  padding: 10px 0px;
+  text-align: center;
   display: block;
+}
+.header-logo {
+  font-size: 32px;
+  width: 94px;
+  color: #707070;
 }
 .header-menu {
   transform: translate(-50%, -50%);
@@ -27,12 +28,18 @@
   border-bottom: 6px solid #707070;
   display: inline-block;
 }
-
+.header-menu-opened {
+  border-top: none;
+  border-bottom: none;
+}
 .menu-item {
   font-size: 25px;
   display: block;
-  color: #707070;
+  color: black;
   text-decoration: none;
+}
+.background-perl {
+  background-color: #dbbea4;
 }
 .menu-item:hover {
   background-color: #dbbea4;
