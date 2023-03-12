@@ -1,5 +1,7 @@
 package com.yutadd.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,5 +35,9 @@ public class CafeController {
 			return ResponseEntity.ok("アクティベーション完了");
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("注文のアクティベーションに失敗しました。");
+	}
+	@GetMapping(value="/orders")
+	public ResponseEntity<List> orderList(){
+		return ResponseEntity.ok(oServ.getOrders());
 	}
 }

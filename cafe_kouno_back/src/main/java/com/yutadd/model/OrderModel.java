@@ -2,6 +2,7 @@ package com.yutadd.model;
 
 import java.sql.Timestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -20,9 +21,11 @@ public class OrderModel {
 	private String name;
 	private boolean valid;
 	@Id
-	private String order_id;
-	private Timestamp reserve_date;
-	private boolean isfilled;
+	@Column(name="order_id")
+	private String orderId;
+	@Column(name="reserve_date")
+	private Timestamp reserveDate;
+	private boolean filled;
 	@Tolerate
 	public OrderModel() {}
 }

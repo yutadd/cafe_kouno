@@ -1,5 +1,6 @@
 package com.yutadd.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,9 +16,12 @@ import lombok.experimental.Tolerate;
 @Setter
 public class OrderDetailModel {
 	@Id
-	private String order_detail_id;
-	private String order_id;
-	private String product_id;
+	@Column(name="order_detail_id")
+	private String orderDetailId;
+	@Column(name="order_id")
+	private String orderId;
+	@Column(name="product_id")
+	private String productId;
 	private int amount;
 	@Tolerate
 	public OrderDetailModel() {}

@@ -3,6 +3,7 @@ C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\configrat
 C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\controller\CafeController.java
 C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\repository\OrderRepository.java
 C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\model\request\OrderRequestParamModel.java
+C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\service\job\SendMail.java
 C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\CafeKounoBackApplication.java
 C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\model\OrderDetailModel.java
 C:\Users\spyk4\git\cafe_kouno\cafe_kouno_back\src\main\java\com\yutadd\model\request\ProductMap.java
