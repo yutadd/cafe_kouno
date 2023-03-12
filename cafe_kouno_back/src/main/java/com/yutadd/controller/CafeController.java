@@ -22,16 +22,16 @@ public class CafeController {
 	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
 		String oid=oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts());
 		if(oid!=null) {
-			return ResponseEntity.ok("sent activation email");
+			return ResponseEntity.ok("注文のメールを送信しました");
 		}else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error occured");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("エラーが発生しました。");
 		}
 	}
-	@PostMapping(value="/activation/{oid}")
-	public HttpStatus activation(@PathVariable String oid) {
+	@GetMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
 		if(oServ.doActivation(oid)) {
-			return HttpStatus.OK;
+			return ResponseEntity.ok("アクティベーション完了");
 		}
-		return HttpStatus.BAD_REQUEST;
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("注文のアクティベーションに失敗しました。");
 	}
 }

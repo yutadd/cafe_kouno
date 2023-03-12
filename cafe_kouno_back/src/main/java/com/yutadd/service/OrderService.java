@@ -39,7 +39,7 @@ public class OrderService {
 		//メール通知を運営者に送信
 		//activation用認証メール送信
 		try {
-		sendActivationgMail(reserveId, mail);
+			sendActivationgMail(reserveId, mail);
 		}catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -47,20 +47,29 @@ public class OrderService {
 		return reserveId;
 	}
 	private void sendActivationgMail(String orderNumber,String email_addr) throws Exception{
+		//TODO:注文した商品の詳細をメールに含ませるようにする。
 		JavaMailSender mailSender=MailConfig.getJavaMailSender();
 		MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-        String subject = "注文確認メール";
-        String text = "以下の注文を受け取りました。\n注文を確定させるためには、次のページを開いてください\nhttp://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/activation/"+orderNumber;
-        helper.setTo(email_addr);
-        helper.setSubject(subject);
-        helper.setText(text);
-        helper.setFrom("info@yutadd.com");
-        mailSender.send(message);
+		MimeMessageHelper helper = new MimeMessageHelper(message);
+		String subject = "注文確認メール";
+		String text = "以下の注文を受け取りました。\n"
+				+ "注文を確定させるためには、次のページを開いてください\n"
+				+ "http://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/activation/"+orderNumber;
+
+		helper.setTo(email_addr);
+		helper.setSubject(subject);
+		helper.setText(text);
+		mailSender.send(message);
 	}
 	public boolean doActivation(String oid) {
-		OrderModel order =oRepo.findById(oid).get();
-		order.setValid(true);
-		return true;
+		try {
+			OrderModel order =oRepo.findById(oid).get();
+			order.setValid(true);
+			oRepo.save(order);
+			return true;
+		}catch(Exception e) {
+			return false;
+		}
+
 	}
 }
