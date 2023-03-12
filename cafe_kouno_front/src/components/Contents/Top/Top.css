@@ -1,0 +1,39 @@
+.top-container {
+    padding-top: 120px;
+    position: relative;
+  }
+  .top-image {
+    width: 100%;
+    height: auto;
+  }
+  .top-image-hover-logo {
+    transform: translate(-50%, -50%);
+    position: absolute;
+    text-align: left;
+    top: 50%;
+    left: 50%;
+    color: #707070;
+    padding: 20px;
+  }
+  .top-image-hover-logo-text-small {
+    font-size: 60px;
+    height: 50px;
+    opacity: 1;
+  }
+  
+  .top-image-hover-logo-text-big {
+    font-size: 90px;
+  }
+  @media (max-width: 768px) {
+    .top-image-hover-logo-text-small {
+      height: 10px;
+      font-size: 20px;
+    }
+    .top-image-hover-logo {
+      padding-top: 100px;
+    }
+    .top-image-hover-logo-text-big {
+      font-size: 40px;
+    }
+  }
+  

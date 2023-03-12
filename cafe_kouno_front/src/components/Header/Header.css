@@ -1,0 +1,40 @@
+.header-outter {
+  z-index: 1;
+  position: fixed;
+  width: 100%;
+  background-color: #f4f4f4;
+  padding: 20px 0px;
+  text-align: center;
+}
+.header-container {
+  position: relative;
+}
+.header-title {
+  font-size: 32px;
+  color: #707070;
+  padding: 10px 0px;
+  display: block;
+}
+.header-menu {
+  transform: translate(-50%, -50%);
+  width: 40px;
+  top: 50%;
+  position: absolute;
+  margin: 0px 7px;
+  right: 2%;
+  height: 15px;
+  border-top: 6px solid #707070;
+  border-bottom: 6px solid #707070;
+  display: inline-block;
+}
+
+.menu-item {
+  font-size: 25px;
+  display: block;
+  color: #707070;
+  text-decoration: none;
+}
+.menu-item:hover {
+  background-color: #dbbea4;
+  transition-duration: 0.6s;
+}
