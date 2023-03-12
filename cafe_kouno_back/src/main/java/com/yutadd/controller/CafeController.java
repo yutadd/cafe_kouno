@@ -24,7 +24,7 @@ public class CafeController {
 	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
 		String oid=oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts());
 		if(oid!=null) {
-			return ResponseEntity.ok("注文のメールを送信しました");
+			return ResponseEntity.ok("注文が完了しました！");
 		}else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("エラーが発生しました。");
 		}
