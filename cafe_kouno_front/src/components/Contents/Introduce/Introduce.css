@@ -1,0 +1,36 @@
+.introduce-title {
+  font-size: 50px;
+  text-align: left;
+}
+.introduce-outter {
+  justify-content: space-between;
+  text-align: center;
+}
+.introduce-image {
+  display: inline-block;
+  width: 540px;
+  height: 590px;
+  object-fit: cover;
+}
+.introduce-text {
+  display: inline-block;
+  width: 560px;
+  line-height: 23px;
+  font-size: 25px;
+  vertical-align: top;
+  padding-left: 120px;
+  text-align: left;
+}
+@media (max-width: 450px) {
+  .introduce-image {
+    display: block;
+    width: 100%;
+  }
+  .introduce-text {
+    display: inline-block;
+    width: 95%;
+    padding-left: 0px;
+    font-size: 17px;
+    line-height: 17px;
+  }
+}

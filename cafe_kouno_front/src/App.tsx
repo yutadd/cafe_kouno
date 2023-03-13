@@ -1,4 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
+import { Introduce } from './components/Contents/Introduce/Introduce';
+import { Top } from './components/Contents/Top/Top';
 import { Header } from './components/Header/Header';
 export type context_type = [
   mobile: boolean
@@ -18,6 +20,8 @@ function App() {
     <>
       <context.Provider value={{ mobile: mobile }}>
         <Header />
+        <Top />
+        <Introduce />
       </context.Provider>
     </>
   );
