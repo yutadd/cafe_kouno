@@ -33,12 +33,13 @@ export const FoodPanel = (props: any) => {
         if (index != -1) {
             let element = reserveList[index];
             if (increase) {
-
                 element[1] += 1;
                 setAmount(amount + 1);
             } else {
-                if (element[1] > 0) element[1] -= 1;
-                setAmount(amount - 1);
+                if (element[1] > 1) {
+                    element[1] -= 1;
+                    setAmount(amount - 1);
+                }
             }
             let _reserveList = reserveList.concat();
             _reserveList.splice(index);
@@ -47,7 +48,6 @@ export const FoodPanel = (props: any) => {
         } else {
             console.log("this item is not reserved yet");
         }
-
     }
 
     return (<><div className='food-panel-outter'>
@@ -57,5 +57,10 @@ export const FoodPanel = (props: any) => {
             <div className='reserve-amount-text'>{amount}</div>
             <div onClick={() => changeamount(true)} className='reserve-amount-button'>+</div>
         </> : <></>}
+        <div className='food-panel-text-outter'>
+            <div className='food-panel-name'>{props.name}</div>
+            <div className='food-panel-text'>{props.text}</div>
+        </div>
+
     </div></>)
 }

@@ -19,7 +19,7 @@ export const Food = () => {
         fetch("http://localhost:8080/products").then((t) => t.json().then((j) => {
             let result = [];
             for (const elm of j) {
-                result.push(<><FoodPanel product_id={elm["productId"]} /></>)
+                result.push(<><FoodPanel product_id={elm["productId"]} name={elm["productName"]} text={elm["text"]} /></>)
             }
             setProductsElement(result);
 

@@ -9,6 +9,19 @@
   height: 324px;
   object-fit: cover;
 }
+.food-panel-text-outter {
+  width: 560px;
+  display: block;
+  text-align: left;
+}
+.food-panel-name {
+  font-size: 50px;
+  display: block;
+}
+.food-panel-text {
+  font-size: 30px;
+  display: block;
+}
 .food-selected-border {
   border: 6px dashed lightgreen;
 }
