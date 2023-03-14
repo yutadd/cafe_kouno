@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import com.yutadd.model.request.OrderRequestParamModel;
 import com.yutadd.service.OrderService;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value="/")
 public class CafeController {
 	@Autowired
@@ -39,5 +41,9 @@ public class CafeController {
 	@GetMapping(value="/orders")
 	public ResponseEntity<List> orderList(){
 		return ResponseEntity.ok(oServ.getOrders());
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
 	}
 }

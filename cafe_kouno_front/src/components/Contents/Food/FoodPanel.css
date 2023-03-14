@@ -1,0 +1,14 @@
+.food-panel-outter {
+  display: inline-block;
+}
+.food-panel-image {
+  display: block;
+  width: 530px;
+  box-shadow: 5px 5px #dbbea4;
+  margin: 5px;
+  height: 324px;
+  object-fit: cover;
+}
+.food-selected-border {
+  border: 6px dashed lightgreen;
+}

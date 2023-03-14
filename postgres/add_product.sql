@@ -1,0 +1,1 @@
+insert into products(product_id,product_name,text) values(0,'台湾カステラ(ノーマル)','驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ ノーマル');

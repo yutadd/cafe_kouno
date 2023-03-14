@@ -1,38 +1,48 @@
-.introduce-title {
+.food-title {
   font-size: 50px;
-  text-align: left;
   padding-left: 5%;
+  text-align: left;
 }
-.introduce-outter {
+.food-outter {
   justify-content: space-between;
   text-align: center;
 }
-.introduce-image {
+.food-image {
   display: inline-block;
-  width: 540px;
-  box-shadow: 5px 5px saddlebrown;
-  height: 590px;
+  width: 530px;
+  box-shadow: 5px 5px #dbbea4;
+  margin: 5px;
+  height: 324px;
   object-fit: cover;
 }
-.introduce-text {
+
+.food-text {
+  padding-top: 30px;
   display: inline-block;
   width: 560px;
   line-height: 23px;
+  text-align: center;
   font-size: 25px;
   vertical-align: top;
   padding-left: 120px;
-  text-align: left;
 }
 @media (max-width: 450px) {
-  .introduce-image {
+  .food-image {
     display: block;
     width: 100%;
   }
-  .introduce-text {
+  .food-text {
     display: inline-block;
     width: 95%;
     padding-left: 0px;
     font-size: 17px;
     line-height: 17px;
   }
+}
+.food-button {
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border: 3px solid #000000;
+  border-radius: 78px;
+  font-size: 30px;
+  width: 120px;
 }

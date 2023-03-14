@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.yutadd.model.OrderDetailModel;
 import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
 import com.yutadd.model.request.ProductMap;
 import com.yutadd.repository.OrderDetailRepository;
 import com.yutadd.repository.OrderRepository;
+import com.yutadd.repository.ProductRepository;
 import com.yutadd.service.job.SendMail;
 
 @Service
@@ -21,6 +23,8 @@ public class OrderService {
 	private JavaMailSenderImpl mailSender;*///独自のメールサーバを使う際には必要
 	@Autowired
 	public OrderRepository oRepo;
+	@Autowired
+	public ProductRepository pRepo;
 	@Autowired
 	public OrderDetailRepository odRepo;
 	public  String doReserve(String name,String mail,List<ProductMap> products) {
@@ -51,5 +55,8 @@ public class OrderService {
 	}
 	public List<OrderModel> getOrders(){
 		return oRepo.findAllByValidTrue();
+	}
+	public List<ProductModel> getProducts(){
+		return pRepo.findAll();
 	}
 }
