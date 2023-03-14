@@ -12,3 +12,13 @@
 .food-selected-border {
   border: 6px dashed lightgreen;
 }
+.reserve-amount-button {
+  display: inline-block;
+  padding: 5px;
+  font-size: 40px;
+}
+.reserve-amount-text {
+  display: inline-block;
+  padding: 5px;
+  font-size: 40px;
+}

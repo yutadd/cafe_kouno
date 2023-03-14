@@ -2,14 +2,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 import "./Food.css"
 import { FoodPanel } from "./FoodPanel";
-export type reserve_type = [
-    reserve_list: any,
+export type ReserveContextType = [
+    reserveList: ReserveMapType[],
     setReserveList: any
 ]
-const initialize: reserve_type = [[], () => { }];
-export const reserves = createContext<reserve_type>(initialize);
+export type ReserveMapType = [
+    id: string,
+    amount: number
+]
+const initialize: ReserveContextType = [[], () => { }];
+export const reserves = createContext<ReserveContextType>(initialize);
 export const Food = () => {
-    const [reserveLlist, setReserveList] = useState<String[]>([]);
+    const [reserveLlist, setReserveList] = useState<ReserveMapType[]>([]);
     const [productsElement, setProductsElement] = useState<JSX.Element[]>([]);
     useEffect(() => {
         fetch("http://localhost:8080/products").then((t) => t.json().then((j) => {
