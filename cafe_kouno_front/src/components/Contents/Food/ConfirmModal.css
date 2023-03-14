@@ -1,0 +1,10 @@
+.confirm-modal-outter {
+  position: fixed;
+  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: gray;
+  opacity: 0.7;
+}

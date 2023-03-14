@@ -1,1 +1,2 @@
-insert into products(product_id,product_name,text) values(0,'台湾カステラ(ノーマル)','驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ ノーマル');
+insert into products(product_id,product_name,price,text) values(0,'台湾カステラ(ノーマル)',1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ ノーマル');
+insert into products(product_id,product_name,price,text) values(1,'台湾カステラ(チョコ)',1400,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ');

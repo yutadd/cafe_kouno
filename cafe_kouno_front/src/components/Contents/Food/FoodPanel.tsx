@@ -56,11 +56,11 @@ export const FoodPanel = (props: any) => {
             <div onClick={() => changeamount(false)} className='reserve-amount-button'>-</div>
             <div className='reserve-amount-text'>{amount}</div>
             <div onClick={() => changeamount(true)} className='reserve-amount-button'>+</div>
-        </> : <></>}
+        </> : <><div className='food-panel-placeholder'> 予約するには画像をタップしてください！</div></>}
         <div className='food-panel-text-outter'>
             <div className='food-panel-name'>{props.name}</div>
             <div className='food-panel-text'>{props.text}</div>
+            <div className='food-panel-name'>￥{props.price}</div>
         </div>
-
     </div></>)
 }

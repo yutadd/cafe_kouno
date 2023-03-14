@@ -1,18 +1,23 @@
 .food-panel-outter {
+  vertical-align: top;
   display: inline-block;
 }
 .food-panel-image {
+  margin-left: 60px;
+  margin-right: 60px;
   display: block;
   width: 530px;
   box-shadow: 5px 5px #dbbea4;
-  margin: 5px;
   height: 324px;
   object-fit: cover;
 }
 .food-panel-text-outter {
-  width: 560px;
+  width: 530px;
   display: block;
   text-align: left;
+}
+.food-panel-placeholder {
+  padding: 36px 0px;
 }
 .food-panel-name {
   font-size: 50px;
