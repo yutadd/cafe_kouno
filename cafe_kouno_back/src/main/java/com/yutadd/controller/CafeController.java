@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.yutadd.model.request.OrderRequestParamModel;
 import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
 
 @RestController
 @CrossOrigin
@@ -22,6 +23,8 @@ import com.yutadd.service.OrderService;
 public class CafeController {
 	@Autowired
 	OrderService oServ;
+	@Autowired
+	SNSService sServ;
 	@PostMapping(value="/order")
 	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
 		String oid=oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts());
@@ -45,5 +48,9 @@ public class CafeController {
 	@GetMapping(value="/products")
 	public ResponseEntity<List> productList(){
 		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts());
 	}
 }

@@ -1040,3 +1040,64 @@ java.lang.IllegalArgumentException:
 	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655)
 	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622)
 	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165)
+!SESSION 2023-03-16 17:27:19.866 -----------------------------------------------
+eclipse.buildId=4.24.0.I20220607-0700
+java.version=17.0.3
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=ja_JP
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.egit.ui 2 0 2023-03-16 17:28:02.605
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\spyk4'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.eclipse.ui 2 2 2023-03-16 17:34:02.181
+!MESSAGE Invalid property category path: org.springframework.ide.eclipse.beans.ui.properties.ProjectPropertyPage (bundle: org.springframework.ide.eclipse.xml.namespaces, propertyPage: org.springframework.ide.eclipse.beans.ui.namespaces.projectPropertyPage)
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.528
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.531
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.532
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.533
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.533
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.534
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.537
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.537
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.559
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+
+!ENTRY mergedoc.encoding 2 0 2023-03-16 18:05:21.559
+!MESSAGE リソース '/cafe_kouno_back/src/main/java/com/yutadd/model/external_api/Facebook.java' が存在しません。
+!SESSION 2023-03-16 19:43:57.052 -----------------------------------------------
+eclipse.buildId=4.24.0.I20220607-0700
+java.version=17.0.3
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=ja_JP
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.egit.ui 2 0 2023-03-16 19:44:05.681
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\spyk4'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
