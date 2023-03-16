@@ -6,4 +6,5 @@ public class PostData {
 	public int like_count;
 	public String media_type;
 	public String media_url;
+	public String permalink;
 }

@@ -16,7 +16,7 @@ public class Instagram {
 	private Posts lastResult=null;
 	private String API_PATH="https://graph.facebook.com/v14.0/";
 	private String IG_USER_ID=System.getenv("IG_USER_ID");
-	private String FIELDS="caption,children,comments_count,id,like_count,media_type,media_url,thumbnail_url";
+	private String FIELDS="caption,children,comments_count,id,permalink,like_count,media_type,media_url,thumbnail_url";
 	private String FB_ACCESS_TOKEN=System.getenv("FB_ACCESS_TOKEN");
 	public Posts getPosts() {
 		if(System.currentTimeMillis()-lastRequestTimeStamp>60) {

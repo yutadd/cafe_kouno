@@ -51,6 +51,10 @@ public class CafeController {
 	}
 	@GetMapping(value="/igPosts")
 	public ResponseEntity<List<String>> getIgPosts(){
-		return ResponseEntity.ok(sServ.getPosts());
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
 	}
 }

@@ -1,0 +1,13 @@
+.embed-element {
+  display: inline-block;
+  width: 50%;
+}
+.embed-img {
+  width: 100%;
+  height: auto;
+}
+@media (max-width: 450px) {
+  .embed-img {
+    width: 100%;
+  }
+}
