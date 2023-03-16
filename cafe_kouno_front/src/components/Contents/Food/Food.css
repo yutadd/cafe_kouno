@@ -32,11 +32,15 @@
 @media (max-width: 450px) {
   .food-image {
     display: block;
-    width: 100%;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
   }
   .food-text {
     display: inline-block;
-    width: 95%;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
     padding-left: 0px;
     font-size: 17px;
     line-height: 17px;
@@ -44,7 +48,7 @@
 }
 .food-button {
   background: #ffffff 0% 0% no-repeat padding-box;
-  border: 3px solid #000000;
+  border: 2px solid #000000;
   border-radius: 78px;
   font-size: 30px;
   width: 120px;

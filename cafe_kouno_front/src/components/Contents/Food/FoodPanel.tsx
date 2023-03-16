@@ -2,13 +2,12 @@ import { useContext, useEffect, useState } from 'react'
 import { ReserveContextType, ReserveMapType, reserves, } from './Food';
 import './FoodPanel.css'
 export const FoodPanel = (props: any) => {
-    const [reserveList, setReserveList]: ReserveContextType = useContext(reserves);
-    console.log(reserveList);
+    const { reserveList, setReserveList }: ReserveContextType = useContext(reserves);
     const [amount, setAmount] = useState(0);
     const product_id = props.product_id;
     const getIndex = (product_id: string) => {
         for (let i = 0; i < reserveList.length; i++) {
-            if (reserveList[i][0] == product_id) {
+            if (reserveList[i].id == product_id) {
                 return (i);
             }
         }
@@ -23,31 +22,46 @@ export const FoodPanel = (props: any) => {
             setAmount(0);
         } else {
             let _reserveList = reserveList.concat();
-            _reserveList.push([product_id, 1]);
+            _reserveList.push({ id: product_id, name: props.name, price: props.price, amount: 1 });
             setReserveList(_reserveList);
             setAmount(1);
         }
     }
     function changeamount(increase: boolean) {
+
         const index = getIndex(product_id);
         if (index != -1) {
             let element = reserveList[index];
             if (increase) {
-                element[1] += 1;
+                element.amount += 1;
                 setAmount(amount + 1);
             } else {
-                if (element[1] > 1) {
-                    element[1] -= 1;
+                if (element.amount > 1) {
+                    element.amount -= 1;
                     setAmount(amount - 1);
                 }
             }
             let _reserveList = reserveList.concat();
-            _reserveList.splice(index);
+            console.log(reserveList);
+            _reserveList = del(_reserveList, index);
+            console.log(index)
+            console.log(_reserveList);
             _reserveList.push(element);
+            console.log(element);
+            console.log(_reserveList);
             setReserveList(_reserveList);
         } else {
             console.log("this item is not reserved yet");
         }
+    }
+    function del(origin: any[], index: number) {
+        let result = [];
+        for (let i = 0; i < origin.length; i++) {
+            if (i != index) {
+                result.push(origin[i]);
+            }
+        }
+        return result;
     }
 
     return (<><div className='food-panel-outter'>
@@ -62,5 +76,6 @@ export const FoodPanel = (props: any) => {
             <div className='food-panel-text'>{props.text}</div>
             <div className='food-panel-name'>￥{props.price}</div>
         </div>
+        <hr />
     </div></>)
 }
