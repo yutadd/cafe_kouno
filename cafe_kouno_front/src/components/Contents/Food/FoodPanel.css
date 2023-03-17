@@ -1,7 +1,7 @@
 .food-panel-outter {
   vertical-align: top;
   display: inline-block;
-  height: 905px;
+  height: auto; /*or 905*/
 }
 .food-panel-image {
   margin-left: 60px;
