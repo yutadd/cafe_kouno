@@ -26,10 +26,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "touch": "if not exist docs \"mkdir docs\"",
     "rm": "rmdir /Q /S docs",
     "mv": "move build docs",
     "git": "git add . && git commit && git push origin master",
-    "deploy": "mkdir docs&&npm run rm && npm run build && npm run mv && npm run git"
+    "deploy": "npm run touch&&npm run rm && npm run build && npm run mv && npm run git"
   },
   "eslintConfig": {
     "extends": [
