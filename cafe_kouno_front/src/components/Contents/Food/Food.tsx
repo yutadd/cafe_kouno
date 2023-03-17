@@ -12,7 +12,7 @@ export type ReserveMapType = {
     id: string,
     name: string,
     price: number,
-    amount: number
+    amount: number,
     size: string
 };
 const initialize: ReserveContextType = { reserveList: [], setReserveList: () => { } };
@@ -56,11 +56,11 @@ export const Food = () => {
 
     return (<>
         <reserves.Provider value={{ reserveList: reserveLlist, setReserveList: setReserveList }}>
-            <div className="food-outter">
+            <div className="food-outter" id="shop">
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
                 <div className="food-title">FOOD&drink</div>
                 <div style={{ display: "block" }}>
-                    <img className="food-image" src="/images/0.jpg" alt="0.jpg" />
+                    <img className="food-image" src="/images/11.jpg" alt="0.jpg" />
                     <div className="food-text">
                         <p>以下の商品は、タップしていただくことで</p>選択した後、このボタンで<p>ご予約確定画面へ遷移していただくことが</p><p>可能です。</p>
                         <div style={{ display: "block", textAlign: "center" }}>
@@ -83,7 +83,7 @@ export const Food = () => {
                 </div>
                 <hr />
                 <div className="big-category-outter">
-                    <div className="sub-title">Coffee/コーヒー</div>
+                    <div className="sub-title">other/その他</div>
                     <div className="category-outter">
                         <div className="category-title">HOT</div>
                         {hotOther}

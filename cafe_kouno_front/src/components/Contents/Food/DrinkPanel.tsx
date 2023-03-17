@@ -102,23 +102,23 @@ export const DrinkPanel = (props: any) => {
                 <div className={getIndex(product_id, "S") != -1 && reserveList[getIndex(product_id, "S")].name.endsWith('S') ? 'drink-price food-selected-border' : 'drink-price'} >
                     <div className='price-text' onClick={() => doReserve(0)}> S:{"￥" + props.price}</div>
                     {(getIndex(product_id, "S") != -1 && reserveList[getIndex(product_id, "S")].name.endsWith('S')) ? <>
-                        <div onClick={() => changeamount(false, 0)} className='reserve-amount-button'>-</div>
-                        <div className='reserve-amount-text'>{amountS}</div>
-                        <div onClick={() => changeamount(true, 0)} className='reserve-amount-button'>+</div></> : <></>}
+                        <div onClick={() => changeamount(false, 0)} className='drink-reserve-amount-button'>-</div>
+                        <div className='drink-reserve-amount-text'>{amountS}</div>
+                        <div onClick={() => changeamount(true, 0)} className='drink-reserve-amount-button'>+</div></> : <></>}
                 </div>
                 <div className={getIndex(product_id, "M") != -1 && reserveList[getIndex(product_id, "M")].name.endsWith('M') ? 'drink-price food-selected-border' : 'drink-price'} >
                     <div className='price-text' onClick={() => doReserve(1)}> M:{"￥" + props.priceM}</div>
                     {(getIndex(product_id, "M") != -1 && reserveList[getIndex(product_id, "M")].name.endsWith('M')) ? <>
-                        <div onClick={() => changeamount(false, 1)} className='reserve-amount-button'>-</div>
-                        <div className='reserve-amount-text'>{amountM}</div>
-                        <div onClick={() => changeamount(true, 1)} className='reserve-amount-button'>+</div></> : <></>}
+                        <div onClick={() => changeamount(false, 1)} className='drink-reserve-amount-button'>-</div>
+                        <div className='drink-reserve-amount-text'>{amountM}</div>
+                        <div onClick={() => changeamount(true, 1)} className='drink-reserve-amount-button'>+</div></> : <></>}
                 </div>
                 <div className={getIndex(product_id, "L") != -1 && reserveList[getIndex(product_id, "L")].name.endsWith('L') ? 'drink-price food-selected-border' : 'drink-price'} >
                     <div className='price-text' onClick={() => doReserve(2)}> L:{"￥" + props.priceL}</div>
                     {(getIndex(product_id, "L") != -1 && reserveList[getIndex(product_id, "L")].name.endsWith('L')) ? <>
-                        <div onClick={() => changeamount(false, 2)} className='reserve-amount-button'>-</div>
-                        <div className='reserve-amount-text'>{amountL}</div>
-                        <div onClick={() => changeamount(true, 2)} className='reserve-amount-button'>+</div></> : <></>}
+                        <div onClick={() => changeamount(false, 2)} className='drink-reserve-amount-button'>-</div>
+                        <div className='drink-reserve-amount-text'>{amountL}</div>
+                        <div onClick={() => changeamount(true, 2)} className='drink-reserve-amount-button'>+</div></> : <></>}
                 </div>
             </div>
         </div>

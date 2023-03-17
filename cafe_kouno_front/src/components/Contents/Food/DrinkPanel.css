@@ -1,7 +1,7 @@
 .drink-outter {
   text-align: left;
   display: block;
-  font-size: 25px;
+  font-size: 20px;
   width: 37%;
 }
 .drink-title {
@@ -16,6 +16,16 @@
   padding-left: 5px;
   display: inline-block;
   cursor: pointer;
+}
+.drink-reserve-amount-button {
+  display: inline-block;
+  padding: 0px 4px;
+  font-size: 27px;
+}
+.drink-reserve-amount-text {
+  display: inline-block;
+  padding: 0px 4px;
+  font-size: 27px;
 }
 @media (max-width: 540px) {
   .drink-outter {
