@@ -23,8 +23,16 @@ public class ProductModel {
 	private String productName;
 	@Column(name="price")
 	private int price;
+	@Column(name="pricem")
+	private int priceM;
+	@Column(name="pricel")
+	private int priceL;
 	@Column(name="text")
 	private String text;
+	@Column(name="drink")
+	private boolean drink;
+	@Column(name="category")
+	private String category;
 	@Tolerate
 	public ProductModel() {}
 }

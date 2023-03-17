@@ -6,6 +6,7 @@ import lombok.Setter;
 @Setter
 public class ProductMap {
 	private String product_id;
+	private String size;
 	private int amount;
 
 }

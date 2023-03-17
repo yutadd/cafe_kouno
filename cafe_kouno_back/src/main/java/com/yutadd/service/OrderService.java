@@ -30,7 +30,7 @@ public class OrderService {
 	public  String doReserve(String name,String mail,List<ProductMap> products) {
 		String reserveId=String.valueOf(new Random().nextInt());
 		for (ProductMap p:products) {
-			OrderDetailModel odm=new OrderDetailModel(String.valueOf(new Random().nextInt()),reserveId,p.getProduct_id(),p.getAmount());
+			OrderDetailModel odm=new OrderDetailModel(String.valueOf(new Random().nextInt()),reserveId,p.getSize(),p.getProduct_id(),p.getAmount());
 			odRepo.save(odm);
 		}
 		OrderModel om=new OrderModel(name,false,reserveId,new Timestamp(System.currentTimeMillis()),false);

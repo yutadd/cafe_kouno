@@ -1,2 +1,12 @@
-insert into products(product_id,product_name,price,text) values(0,'台湾カステラ(ノーマル)',1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ ノーマル');
-insert into products(product_id,product_name,price,text) values(1,'台湾カステラ(チョコ)',1400,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(0,'台湾カステラ(ノーマル)',1200,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ ノーマル',false,'food');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(1,'台湾カステラ(チョコ)',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',false,'food');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(2,'向野ブレンド',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-coffee');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(3,'アメリカンコーヒー',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-coffee');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(4,'カフェラテ',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-coffee');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(5,'カフェラテ',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'ice-coffee');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(6,'アイスコーヒー',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'ice-coffee');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(7,'紅茶',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-other');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(8,'ロイヤルミルクティー',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-other');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(9,'紅茶',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'ice-other');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(10,'ロイヤルミルクティー',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'ice-other');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(11,'オレンジ100%ジュース',1400,1200,1200,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'ice-other');

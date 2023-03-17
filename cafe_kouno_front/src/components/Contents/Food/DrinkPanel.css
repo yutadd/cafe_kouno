@@ -1,0 +1,24 @@
+.drink-outter {
+  text-align: left;
+  display: block;
+  font-size: 25px;
+  width: 37%;
+}
+.drink-title {
+  width: 300px;
+}
+.drink-price-outter {
+  display: inline-block;
+  width: 350px;
+}
+.drink-price {
+  padding-right: 5px;
+  padding-left: 5px;
+  display: inline-block;
+  cursor: pointer;
+}
+@media (max-width: 540px) {
+  .drink-outter {
+    width: 100%;
+  }
+}

@@ -18,7 +18,7 @@ export const ConfirmModal = (props: any) => {
     const doReserve = () => {
         let products = [];
         for (const elm of reserveList) {
-            products.push({ "product_id": elm.id, "amount": elm.amount });
+            products.push({ "product_id": elm.id, "amount": elm.amount, size: elm.size });
         }
         console.log(JSON.stringify({ name: name, mail: email, products: products }));
         fetch("http://localhost:8080/order", { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, mail: email, products: products }) })

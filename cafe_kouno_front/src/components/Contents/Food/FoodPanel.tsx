@@ -17,12 +17,12 @@ export const FoodPanel = (props: any) => {
         const index = getIndex(product_id);
         if (index != -1) {
             let _reserveList = reserveList.concat();
-            _reserveList.splice(index);
+            _reserveList = del(_reserveList, index);
             setReserveList(_reserveList);
             setAmount(0);
         } else {
             let _reserveList = reserveList.concat();
-            _reserveList.push({ id: product_id, name: props.name, price: props.price, amount: 1 });
+            _reserveList.push({ id: product_id, name: props.name, price: props.price, amount: 1, size: "S" });
             setReserveList(_reserveList);
             setAmount(1);
         }

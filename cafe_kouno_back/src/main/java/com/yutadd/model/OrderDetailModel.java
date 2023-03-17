@@ -20,6 +20,7 @@ public class OrderDetailModel {
 	private String orderDetailId;
 	@Column(name="order_id")
 	private String orderId;
+	private String size;
 	@Column(name="product_id")
 	private String productId;
 	private int amount;
