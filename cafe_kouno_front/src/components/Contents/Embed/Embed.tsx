@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import { context } from "../../../App";
 import "./Embed.css";
 export const Embed = () => {
     const [igTiles, setIgTiles] = useState<JSX.Element[]>([]);
     const [loaded, setloaded] = useState(false);
+    const { apiPath, subPath } = useContext(context);
     useEffect(() => {
-        fetch("http://localhost:8080/igPosts").then((c) => c.json().then((j) => {
+        fetch("http://" + apiPath + "/igPosts").then((c) => c.json().then((j) => {
             let result = [];
             for (let url of j) {
                 console.log(url)
