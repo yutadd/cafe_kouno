@@ -14,26 +14,33 @@
   margin: 5px;
   height: 324px;
   object-fit: cover;
+  margin-left: 60px;
+  margin-right: 60px;
 }
 
 .food-text {
   padding-top: 30px;
   display: inline-block;
-  width: 560px;
+  width: 530px;
   line-height: 23px;
   text-align: center;
   font-size: 25px;
   vertical-align: top;
-  padding-left: 120px;
+  margin-left: 60px;
+  margin-right: 60px;
 }
 @media (max-width: 450px) {
   .food-image {
     display: block;
-    width: 100%;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
   }
   .food-text {
     display: inline-block;
-    width: 95%;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
     padding-left: 0px;
     font-size: 17px;
     line-height: 17px;
@@ -41,7 +48,7 @@
 }
 .food-button {
   background: #ffffff 0% 0% no-repeat padding-box;
-  border: 3px solid #000000;
+  border: 2px solid #000000;
   border-radius: 78px;
   font-size: 30px;
   width: 120px;

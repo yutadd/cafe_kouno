@@ -21,6 +21,8 @@ public class ProductModel {
 	private String productId;
 	@Column(name="product_name")
 	private String productName;
+	@Column(name="price")
+	private int price;
 	@Column(name="text")
 	private String text;
 	@Tolerate

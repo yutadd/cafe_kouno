@@ -1,0 +1,65 @@
+.confirm-modal-outter {
+  position: fixed;
+  z-index: 2;
+  width: 100%;
+  display: block;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: gray;
+  opacity: 0.7;
+  text-align: center;
+}
+.confirm-modal-contents-outter {
+  opacity: 1;
+  z-index: 3;
+  position: fixed;
+  border-radius: 23px;
+  border: 1px solid gray;
+  top: 5%;
+  left: 27.5%;
+  background-color: white;
+  width: 45%;
+  height: 90%;
+}
+.confirm-modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  font-size: 40px;
+}
+@media (max-width: 400px) {
+  .confirm-modal-contents-outter {
+    width: 90%;
+    left: 2.5%;
+    top: 2.5%;
+  }
+}
+.confirm-modal-products-item {
+  display: block;
+  font-size: 20px;
+}
+.confirm-modal-title {
+  font-size: 40px;
+}
+.confirm-model-sum {
+  color: red;
+}
+.confirm-modal-form-outter {
+  text-align: center;
+}
+.confirm-modal-submit-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 8px;
+  border-radius: 10px;
+  color: white;
+  background-color: #dbbea4;
+  font-size: 20px;
+}
+.confirm-modal-verify-way {
+  line-height: 15px;
+  font-size: 15px;
+  width: 90%;
+  display: inline-block;
+}

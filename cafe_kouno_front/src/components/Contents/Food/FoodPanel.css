@@ -1,14 +1,68 @@
 .food-panel-outter {
+  vertical-align: top;
   display: inline-block;
+  height: auto; /*or 905*/
 }
 .food-panel-image {
+  margin-left: 60px;
+  margin-right: 60px;
   display: block;
   width: 530px;
   box-shadow: 5px 5px #dbbea4;
-  margin: 5px;
   height: 324px;
   object-fit: cover;
 }
+.food-panel-text-outter {
+  padding-left: 60px;
+  width: 530px;
+  display: block;
+  text-align: left;
+}
+.food-panel-name {
+  font-size: 40px;
+  display: block;
+}
+.food-panel-text {
+  font-size: 30px;
+  display: block;
+}
+@media (max-width: 540px) {
+  .food-panel-text-outter {
+    padding-left: 20px;
+    width: 100%;
+  }
+  .food-panel-name {
+    font-size: 25px;
+  }
+  .food-panel-text {
+    font-size: 15px;
+    width: 90%;
+  }
+  .food-panel-image {
+    width: 90%;
+    height: auto;
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+  .food-panel-outter {
+    margin-top: 20px;
+    height: auto;
+  }
+}
+.food-panel-placeholder {
+  padding: 36px 0px;
+}
+
 .food-selected-border {
   border: 6px dashed lightgreen;
+}
+.reserve-amount-button {
+  display: inline-block;
+  padding: 5px;
+  font-size: 40px;
+}
+.reserve-amount-text {
+  display: inline-block;
+  padding: 5px;
+  font-size: 40px;
 }

@@ -1,4 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
+import { Drink } from './components/Contents/Food/Drink';
+import { Embed } from './components/Contents/Embed/Embed';
 import { Food } from './components/Contents/Food/Food';
 import { Introduce } from './components/Contents/Introduce/Introduce';
 import { Top } from './components/Contents/Top/Top';
@@ -24,6 +26,8 @@ function App() {
         <Top />
         <Introduce />
         <Food />
+        <Embed />
+        <Drink />
       </context.Provider>
     </>
   );
