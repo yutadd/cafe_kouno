@@ -11,7 +11,7 @@ export const ConfirmModal = (props: any) => {
     let products = [];
     let sum = 0;
     for (const elm of reserveList) {
-        products.push(<><div className="confirm-modal-products-item"></div>{elm.name}x{elm.amount}　　小計￥{elm.price * elm.amount}</>);
+        products.push(<><div className="confirm-modal-products-item">{elm.name}x{elm.amount}　　小計￥{elm.price * elm.amount}</div></>);
         sum += elm.price * elm.amount;
     }
     const setShowConfirm = props.closeFunc;
