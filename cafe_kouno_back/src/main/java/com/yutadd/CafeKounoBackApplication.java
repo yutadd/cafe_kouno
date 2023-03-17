@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class CafeKounoBackApplication {
 
-	//アクティベーションを行うためのページ（フロントエンド）のアドレスとポート
-public static String domain="localhost";
+	//アクティベーションを行うためのページ（将来的にフロントエンド）のアドレスとポート
+public static String domain="yutadd.com";
 public static int port=8080;
 
 	public static void main(String[] args) {
