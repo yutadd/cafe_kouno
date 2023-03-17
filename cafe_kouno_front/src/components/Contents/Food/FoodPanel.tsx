@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from 'react'
+import { context } from '../../../App';
 import { ReserveContextType, ReserveMapType, reserves, } from './Food';
 import './FoodPanel.css'
 export const FoodPanel = (props: any) => {
     const { reserveList, setReserveList }: ReserveContextType = useContext(reserves);
     const [amount, setAmount] = useState(0);
     const product_id = props.product_id;
+    const { apiPath, subPath } = useContext(context);
     const getIndex = (product_id: string) => {
         for (let i = 0; i < reserveList.length; i++) {
             if (reserveList[i].id == product_id) {
@@ -65,7 +67,7 @@ export const FoodPanel = (props: any) => {
     }
 
     return (<><div className='food-panel-outter'>
-        <img onClick={() => doReserve()} className={getIndex(product_id) != -1 ? "food-panel-image food-selected-border" : "food-panel-image"} src={"/images/" + props.product_id + ".jpg"} alt="food_image" />
+        <img onClick={() => doReserve()} className={getIndex(product_id) != -1 ? "food-panel-image food-selected-border" : "food-panel-image"} src={subPath + "/images/" + props.product_id + ".jpg"} alt="food_image" />
         {getIndex(product_id) != -1 ? <>
             <div onClick={() => changeamount(false)} className='reserve-amount-button'>-</div>
             <div className='reserve-amount-text'>{amount}</div>

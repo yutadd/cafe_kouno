@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { context } from "../../../App";
 import { ConfirmModal } from "./ConfirmModal/ConfirmModal";
 import { DrinkPanel } from "./DrinkPanel";
 
@@ -25,8 +26,9 @@ export const Food = () => {
     const [hotOther, setHotOther] = useState<JSX.Element[]>([]);
     const [iceOther, setIceOther] = useState<JSX.Element[]>([]);
     const [showConfirm, setShowConfirm] = useState(false);
+    const { apiPath, subPath } = useContext(context);
     useEffect(() => {
-        fetch("http://localhost:8080/products").then((t) => t.json().then((j) => {
+        fetch("http://" + apiPath + "/products").then((t) => t.json().then((j) => {
             let _food = [];
             let hot_coffee = [];
             let ice_coffee = [];
@@ -60,7 +62,7 @@ export const Food = () => {
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
                 <div className="food-title">FOOD&drink</div>
                 <div style={{ display: "block" }}>
-                    <img className="food-image" src="/images/11.jpg" alt="0.jpg" />
+                    <img className="food-image" src={subPath + "/images/11.jpg"} alt="0.jpg" />
                     <div className="food-text">
                         <p>以下の商品は、タップしていただくことで</p>選択した後、このボタンで<p>ご予約確定画面へ遷移していただくことが</p><p>可能です。</p>
                         <div style={{ display: "block", textAlign: "center" }}>

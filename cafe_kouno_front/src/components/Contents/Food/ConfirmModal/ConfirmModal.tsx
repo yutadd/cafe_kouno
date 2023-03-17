@@ -2,12 +2,14 @@ import { useContext, useState } from "react";
 import "./ConfirmModal.css"
 import { ReserveContextType, reserves } from "../Food";
 import { ConfirmModalInput } from "./ConfirmModalInput";
-import { METHODS } from "http";
+import { context } from "../../../../App";
+
 
 export const ConfirmModal = (props: any) => {
     const { reserveList, setReserveList }: ReserveContextType = useContext(reserves);
     const [email, setEmail] = useState<string>("");
     const [name, setName] = useState<string>("");
+    const { apiPath, subPath } = useContext(context);
     let products = [];
     let sum = 0;
     for (const elm of reserveList) {
@@ -21,7 +23,7 @@ export const ConfirmModal = (props: any) => {
             products.push({ "product_id": elm.id, "amount": elm.amount, size: elm.size });
         }
         console.log(JSON.stringify({ name: name, mail: email, products: products }));
-        fetch("http://localhost:8080/order", { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, mail: email, products: products }) })
+        fetch("http://" + apiPath + "/order", { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, mail: email, products: products }) })
         alert('ご注文を確定いたしました！\r\nメールの送信が完了するまで少しお待ち頂く場合がございます');
         setShowConfirm(false);
     }

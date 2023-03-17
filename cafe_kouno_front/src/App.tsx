@@ -4,23 +4,18 @@ import { Food } from './components/Contents/Food/Food';
 import { Introduce } from './components/Contents/Introduce/Introduce';
 import { Top } from './components/Contents/Top/Top';
 import { Header } from './components/Header/Header';
-export type context_type = [
-  mobile: boolean
-]
+export type context_type = {
+  apiPath: string,
+  subPath: string,
+}
 
-
-export const context = createContext({ mobile: true });
+const initialValue: context_type = { apiPath: "3.113.33.151:8080", subPath: "" };
+export const context = createContext<context_type>(initialValue);
 function App() {
-  const [mobile, setMobile] = useState(true);
-  useEffect(() => {
-    const handleResize = () => {
-      setMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-  });
+
   return (
     <>
-      <context.Provider value={{ mobile: mobile }}>
+      <context.Provider value={initialValue}>
         <Header />
         <Top />
         <Introduce />
