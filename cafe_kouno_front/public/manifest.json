@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Cafe kouno",
+  "name": "カフェ向野へようこそ",
   "icons": [
     {
       "src": "images/logo_.png",
@@ -12,7 +12,6 @@
       "sizes": "557x474",
       "type": "image/png"
     }
-
   ],
   "start_url": ".",
   "display": "standalone",
