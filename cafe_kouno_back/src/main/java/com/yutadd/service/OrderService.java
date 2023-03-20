@@ -27,6 +27,8 @@ public class OrderService {
 	public ProductRepository pRepo;
 	@Autowired
 	public OrderDetailRepository odRepo;
+	@Autowired
+	public SendMail smServ;
 	public  String doReserve(String name,String mail,List<ProductMap> products) {
 		String reserveId=String.valueOf(new Random().nextInt());
 		for (ProductMap p:products) {
@@ -36,7 +38,7 @@ public class OrderService {
 		OrderModel om=new OrderModel(name,false,reserveId,new Timestamp(System.currentTimeMillis()),false);
 		oRepo.save(om);
 		try {
-			SendMail.sendMail(reserveId, mail,new ArrayList<String>());
+			smServ.sendMail(reserveId, mail,products);
 		}catch(Exception e) {
 			e.printStackTrace();
 			return null;
