@@ -21,39 +21,42 @@ public class SendMail {
 	public ProductRepository pRepo;
 	public void sendMail(String orderNumber,String email_addr,List<ProductMap> product_names) throws
 	MessagingException{
-	//TODO:注文した商品の詳細をメールに含ませるようにする。
-			JavaMailSender mailSender=MailConfig.getJavaMailSender();
-			MimeMessage message = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(message);
-			String subject = "【カフェ向野】注文確認メール";
-			String text = "以下の注文を受け取りました。\n"
-					+ "注文を確定させるためには、次のページを開いてください\n"
-					+ "http://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/activation/"+orderNumber+"\n"
-					+"注文内容はこちらになります";
-			int sum=0;
-			for(ProductMap pm:product_names) {
-				ProductModel product=pRepo.findById(pm.getProduct_id()).get();
-				int price=-1;
-				switch(pm.getSize()) {
-					case "S":
-						price=product.getPrice()*pm.getAmount();
-						break;
-					case "M":
-						price=product.getPriceM()*pm.getAmount();
-						break;
-					case "L":
-						price=product.getPriceL()*pm.getAmount();
-						break;
-				}
-				text+="\n"+product.getProductName()+" "+pm.getSize()+" x "+pm.getAmount()+" 小計 ￥"+price;
-				sum+=price;
+		//TODO:注文した商品の詳細をメールに含ませるようにする。
+		JavaMailSender mailSender=MailConfig.getJavaMailSender();
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message);
+		String subject = "【カフェ向野】注文確認メール";
+		String text = "以下の注文を承りました。\n"
+				+ "注文を確定させるためには、次のページを開いてください\n"
+				+ "http://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/activation/"+orderNumber+"\n"
+				+"※もしこのメールに身に覚えのない場合、リンクをクリックせず、このメールを破棄してください。"
+				+"\n注文内容はこちらになります";
+		int sum=0;
+		for(ProductMap pm:product_names) {
+			ProductModel product=pRepo.findById(pm.getProduct_id()).get();
+			int price=-1;
+			switch(pm.getSize()) {
+			case "S":
+				price=product.getPrice()*pm.getAmount();
+				break;
+			case "M":
+				price=product.getPriceM()*pm.getAmount();
+				break;
+			case "L":
+				price=product.getPriceL()*pm.getAmount();
+				break;
 			}
-			text+="\n合計 ￥"+sum;
-			text+="\nもしこのメールに見に覚えのない場合、リンクをクリックせず、このメールを破棄してください。";
-			helper.setTo(email_addr);
-			helper.setSubject(subject);
-			helper.setText(text);
-			mailSender.send(message);
+			text+="\n"+product.getProductName()+" "+pm.getSize()+" x "+pm.getAmount()+" 小計 ￥"+price;
+			sum+=price;
 		}
+		text+="\n合計 ￥"+sum;
+		text+="\n注文をキャンセルするにはこのリンクをクリックしてください";
+		text+="\n※ご注文のされた商品の準備が整った後のキャンセルは致しかねますのでご了承ください。";
+		text+="\n"+"http://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/cancel/"+orderNumber+"\n";
+		helper.setTo(email_addr);
+		helper.setSubject(subject);
+		helper.setText(text);
+		mailSender.send(message);
+	}
 
 }

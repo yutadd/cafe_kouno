@@ -35,7 +35,7 @@ public class OrderService {
 			OrderDetailModel odm=new OrderDetailModel(String.valueOf(new Random().nextInt()),reserveId,p.getSize(),p.getProduct_id(),p.getAmount());
 			odRepo.save(odm);
 		}
-		OrderModel om=new OrderModel(name,false,reserveId,new Timestamp(System.currentTimeMillis()),false);
+		OrderModel om=new OrderModel(name,false,reserveId,new Timestamp(System.currentTimeMillis()),false,false,false);
 		oRepo.save(om);
 		try {
 			smServ.sendMail(reserveId, mail,products);
@@ -54,6 +54,23 @@ public class OrderService {
 		}catch(Exception e) {
 			return false;
 		}
+	}
+	public boolean isCancelable(String oid) {
+		try {
+		if(oRepo.findById(oid).get().isReady()) {
+			return false;
+		}
+		}catch(Exception e) {
+			System.out.println("no such record id like "+oid+" so can't tell can or not.");
+			return false;
+		}
+		return true;
+	}
+	public boolean doCancel(String oid) {
+		OrderModel order =oRepo.findById(oid).get();
+		order.setCancelled(true);
+		oRepo.save(order);
+		return true;
 	}
 	public List<OrderModel> getOrders(){
 		return oRepo.findAllByValidTrue();

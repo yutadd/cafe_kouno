@@ -34,12 +34,23 @@ public class CafeController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("エラーが発生しました。");
 		}
 	}
-	@GetMapping(value="/activation/{oid}")
+	@PostMapping(value="/activation/{oid}")
 	public ResponseEntity<String> activation(@PathVariable String oid) {
 		if(oServ.doActivation(oid)) {
 			return ResponseEntity.ok("アクティベーション完了");
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("注文のアクティベーションに失敗しました。");
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		if(oServ.doCancel(oid)) {
+			return ResponseEntity.ok("キャンセルしました");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("注文のキャンセルに失敗しました。");
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
 	}
 	@GetMapping(value="/orders")
 	public ResponseEntity<List> orderList(){

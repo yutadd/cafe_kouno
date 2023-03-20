@@ -26,6 +26,8 @@ public class OrderModel {
 	@Column(name="reserve_date")
 	private Timestamp reserveDate;
 	private boolean filled;
+	private boolean cancelled;
+	private boolean ready;
 	@Tolerate
 	public OrderModel() {}
 }
