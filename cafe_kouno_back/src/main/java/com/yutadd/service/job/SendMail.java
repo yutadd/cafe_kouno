@@ -18,10 +18,12 @@ public class SendMail {
 			JavaMailSender mailSender=MailConfig.getJavaMailSender();
 			MimeMessage message = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message);
-			String subject = "注文確認メール";
+			String subject = "【カフェ向野】注文確認メール";
 			String text = "以下の注文を受け取りました。\n"
 					+ "注文を確定させるためには、次のページを開いてください\n"
-					+ "http://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/activation/"+orderNumber;
+					+ "http://"+CafeKounoBackApplication.domain+":"+CafeKounoBackApplication.port+"/activation/"+orderNumber+"\n"
+					+"注文内容はこちらになります";
+
 
 			helper.setTo(email_addr);
 			helper.setSubject(subject);
