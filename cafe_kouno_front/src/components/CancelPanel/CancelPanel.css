@@ -1,0 +1,29 @@
+.cancel-panel-outter {
+  text-align: center;
+  padding-top: 12%;
+}
+.cancel-panel-title-outter {
+  display: block;
+}
+.cancel-panel-title {
+  border-left: 3px solid black;
+  font-size: 50px;
+  display: inline-block;
+  text-align: left;
+  width: 500px;
+}
+.cancel-panel-contents-outter {
+  width: 500px;
+  display: inline-block;
+  font-size: 20px;
+  text-align: center;
+}
+.cancel-panel-contents-inner {
+  text-align: left;
+}
+.concel-panel-button-outter {
+  display: inline-block;
+  padding: 5px;
+  background-color: #dbbea4;
+  border-radius: 10px;
+}
