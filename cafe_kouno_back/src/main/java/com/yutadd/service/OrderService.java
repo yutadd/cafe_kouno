@@ -41,36 +41,54 @@ public class OrderService {
 			smServ.sendMail(reserveId, mail,products);
 		}catch(Exception e) {
 			e.printStackTrace();
-			return null;
+			return "エラーが発生しました。(メールの送信ができませんでした。)";
 		}
-		return reserveId;
+		return "ご注文を承りました。";
 	}
-	public boolean doActivation(String oid) {
+	public String doActivation(String oid) {
 		try {
 			OrderModel order =oRepo.findById(oid).get();
-			order.setValid(true);
-			oRepo.save(order);
-			return true;
+			if(!order.isValid()) {
+				order.setValid(true);
+				oRepo.save(order);
+				return "ご注文のアクティベーションを完了しました";
+			}else {
+				return "このご注文はすでにアクティベーションされています。";
+			}
+
 		}catch(Exception e) {
-			return false;
+			return "指定されたご注文が見つかりません。urlに間違いがないかご確認ください。問題が再発する場合、その旨を連絡していただけると助かります。";
 		}
 	}
 	public boolean isCancelable(String oid) {
 		try {
-		if(oRepo.findById(oid).get().isReady()) {
-			return false;
-		}
+			if(oRepo.findById(oid).get().isReady()) {
+				return false;
+			}
 		}catch(Exception e) {
 			System.out.println("no such record id like "+oid+" so can't tell can or not.");
 			return false;
 		}
 		return true;
 	}
-	public boolean doCancel(String oid) {
-		OrderModel order =oRepo.findById(oid).get();
-		order.setCancelled(true);
-		oRepo.save(order);
-		return true;
+	public String doCancel(String oid) {
+		try {
+			OrderModel order =oRepo.findById(oid).get();
+			if(!order.isReady()) {
+				if(!order.isFilled()) {
+				order.setCancelled(true);
+				oRepo.save(order);
+				return "ご注文をキャンセルいたしました。";
+				}else {
+					return "ご注文の品はすでにお渡しいたしました。";
+				}
+			}else {
+				return "ご注文の品はすでに準備が整っているため、キャンセルいただけません。";
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			return "指定されたご注文が見つかりません。urlに間違いがないかご確認ください。問題が再発する場合、その旨を連絡していただけると助かります。";
+		}
 	}
 	public List<OrderModel> getOrders(){
 		return oRepo.findAllByValidTrue();
