@@ -3,6 +3,7 @@ package com.yutadd.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,7 +25,7 @@ import com.yutadd.service.SNSService;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequestMapping(value="/")
 public class CafeController {
 	@Autowired
@@ -69,12 +70,18 @@ public class CafeController {
 	}
 	@PostMapping(value="/login")
 	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
 		boolean result=new BCryptPasswordEncoder().matches(password,"$2a$10$P6UxHTDKh7WEayGZz0n9BO/r2nmWX9On6asKE7WIBbYN8jU9krSdy");
 		session.setAttribute("login", result);
-		return ResponseEntity.ok(result?"ログイン完了しました！":"ログインに失敗しました");
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
 	}
 	@GetMapping(value="/login")
 	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
 		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
 	}
 	@PatchMapping(value="/register")
