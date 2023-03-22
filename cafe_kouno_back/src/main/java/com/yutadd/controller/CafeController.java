@@ -3,7 +3,6 @@ package com.yutadd.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yutadd.model.ProductModel;
@@ -68,10 +68,14 @@ public class CafeController {
 		return ResponseEntity.ok(sServ.getPosts(0));
 	}
 	@PostMapping(value="/login")
-	public ResponseEntity<String> login(@PathVariable String str){
-		boolean result=new BCryptPasswordEncoder().matches(str,"$2a$10$P6UxHTDKh7WEayGZz0n9BO/r2nmWX9On6asKE7WIBbYN8jU9krSdy");
+	public ResponseEntity<String> login(@RequestParam String password){
+		boolean result=new BCryptPasswordEncoder().matches(password,"$2a$10$P6UxHTDKh7WEayGZz0n9BO/r2nmWX9On6asKE7WIBbYN8jU9krSdy");
 		session.setAttribute("login", result);
 		return ResponseEntity.ok(result?"ログイン完了しました！":"ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
 	}
 	@PatchMapping(value="/register")
 	public ResponseEntity<String> change_drink(@RequestBody ProductModel product){
