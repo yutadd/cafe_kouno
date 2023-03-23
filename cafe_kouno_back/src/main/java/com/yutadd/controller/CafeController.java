@@ -29,7 +29,7 @@ import jakarta.servlet.http.HttpSession;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@CrossOrigin(origins = "http://http://ws-hackathon2023-teams01.pencilsystems.site/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
 @RequestMapping(value="/")
 public class CafeController {
 	@Autowired
