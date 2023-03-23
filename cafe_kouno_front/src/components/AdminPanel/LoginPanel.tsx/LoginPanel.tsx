@@ -24,6 +24,7 @@ export const LoginPanel = (props: any) => {
                     }} className="login-password-input" type="password" />
 
                 </div>
+                <p>※システム起動後１回目のログインにはセッションIDの生成に時間がかかり、ログインにも時間がかかる場合があります。</p>
                 <div className="login-submit-button" onClick={() => { doLogin(password, stateContext.apiPath, props.setLogin) }}>
                     ログイン
                 </div>
