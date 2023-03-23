@@ -17,6 +17,5 @@ public class CafeKounoBackApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		System.out.println(new BCryptPasswordEncoder().encode("P@ssw0rd"));
-
 	}
 }

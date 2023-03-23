@@ -3,7 +3,7 @@ import { context } from "../../../App";
 import "./LoginPanel.css"
 function doLogin(password: string, apiPath: string, setLogin: (param: boolean) => void) {
 
-    fetch("http://" + apiPath + "/login?password=" + password, { method: "post", credentials:'include' }).then((raw) => { raw.text().then((text) => alert(text + raw.ok)); setLogin(raw.ok) });
+    fetch("http://" + apiPath + "/login?password=" + password, { method: "post", credentials: 'include' }).then((raw) => { raw.text().then((text) => alert(text + raw.ok)); setLogin(raw.ok) });
 }
 export const LoginPanel = (props: any) => {
     const [password, setPassword] = useState("");
@@ -21,7 +21,7 @@ export const LoginPanel = (props: any) => {
                     <p>パスワード:</p>
                     <input onChange={(c) => {
                         setPassword(c.target.value ? c.target.value : "");//フロントエンドは書き換え可能なので、極力バックエンドで値のチェックを行いますねー
-                    }} type="login-password-input" />
+                    }} className="login-password-input" type="password" />
 
                 </div>
                 <div className="login-submit-button" onClick={() => { doLogin(password, stateContext.apiPath, props.setLogin) }}>

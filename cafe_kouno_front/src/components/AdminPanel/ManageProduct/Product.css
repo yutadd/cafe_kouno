@@ -1,0 +1,20 @@
+.change-drink-outter {
+  padding-top: 140px;
+  text-align: center;
+}
+.change-drink-outter p {
+  padding: 0px;
+  margin: 0px;
+}
+.change-drink-input {
+  display: inline-block;
+  width: 60px;
+}
+.register-drink-button {
+  margin-top: 20px;
+  padding: 8px;
+  border-radius: 10px;
+  color: white;
+  background-color: #dbbea4;
+  font-size: 20px;
+}

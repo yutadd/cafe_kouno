@@ -4,9 +4,13 @@ import { Introduce } from './Contents/Introduce/Introduce';
 import { Top } from './Contents/Top/Top';
 import { Header } from './Header/Header';
 export const Home = () => {
-    return (<><Header />
-        <Top />
-        <Introduce />
-        <Food />
-        <Embed /></>);
+    return (
+        <>
+            <Header showGoshop={true} />
+            <Top />
+            <Introduce />
+            <Food />
+            <Embed />
+        </>
+    );
 }
