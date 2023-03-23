@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { context } from "../../App";
 import { GoShop } from "./GoShop";
 import "./Header.css"
-export const Header = () => {
+export const Header = (props: any) => {
     const mobile = useContext(context);
     const { apiPath, subPath } = useContext(context);
     const [showMenu, setShowMenu] = useState(false);
@@ -22,7 +22,8 @@ export const Header = () => {
             </div>
             {showMenu ? <Menu /> : <></>}
         </header>
-        <GoShop />
+        {props.showGoshop ? <GoShop /> : <></>}
+
     </>);
 
 }
