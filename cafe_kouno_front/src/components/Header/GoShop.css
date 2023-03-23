@@ -18,13 +18,14 @@
   background-color: pink;
   height: 170px;
   z-index: 2;
-  top: 160px;
-  left: 10px;
+  bottom: 40px;
+  left: 30px;
 }
 @media (max-width: 400px) {
   .go-shop-outter {
     width: 90px;
     height: 90px;
+    bottom: 30px;
   }
   .go-shop-product-title {
     font-size: 15px;

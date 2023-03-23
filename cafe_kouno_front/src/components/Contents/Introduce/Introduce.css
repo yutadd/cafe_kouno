@@ -7,7 +7,12 @@
   justify-content: space-between;
   text-align: center;
 }
+.introduce-image-outter {
+  text-align: center;
+  display: inline-block;
+}
 .introduce-image {
+  width: 100%;
   display: inline-block;
   width: 540px;
   box-shadow: 5px 5px saddlebrown;
@@ -25,8 +30,8 @@
 }
 @media (max-width: 450px) {
   .introduce-image {
-    display: block;
-    width: 100%;
+    width: 95%;
+    box-shadow: none;
   }
   .introduce-text {
     display: inline-block;

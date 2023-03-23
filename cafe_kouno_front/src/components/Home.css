@@ -1,0 +1,10 @@
+.home-contents-outter {
+  width: 100%;
+  margin-top: 1000px;
+  text-align: center;
+}
+.home-contents-inner {
+  width: 95%;
+  background-color: white;
+  display: inline-block;
+}
