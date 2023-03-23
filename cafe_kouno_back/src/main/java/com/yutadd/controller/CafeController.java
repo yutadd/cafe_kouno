@@ -76,7 +76,7 @@ public class CafeController {
 	@PostMapping(value="/login")
 	public ResponseEntity<String> login(@RequestParam String password){
 		System.out.println(session.getId());
-		boolean result=new BCryptPasswordEncoder().matches(password,"$2a$10$P6UxHTDKh7WEayGZz0n9BO/r2nmWX9On6asKE7WIBbYN8jU9krSdy");
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
 		session.setAttribute("login", result);
 
 		if(result) {
