@@ -11,7 +11,7 @@ export type context_type = {
   subPath: string,
 }
 
-const initialValue: context_type = { apiPath: "yutadd.com:8080", subPath: "" };
+const initialValue: context_type = { apiPath: "localhost:8080", subPath: "" };
 export const context = createContext<context_type>(initialValue);
 function App() {
 

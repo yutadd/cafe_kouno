@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { context } from "../../../App";
+import { Cart } from "./Cart";
 import { ConfirmModal } from "./ConfirmModal/ConfirmModal";
 import { DrinkPanel } from "./DrinkPanel";
 
@@ -46,7 +47,6 @@ export const Food = () => {
                 } else if (elm["category"] == "ice-other") {
                     ice_other.push(<DrinkPanel key={elm["productId"]} product_id={elm["productId"]} name={elm["productName"]} price={elm["price"]} priceM={elm["priceM"]} priceL={elm["priceL"]} />);
                 }
-
             }
             setFood(_food);
             setHotCoffee(hot_coffee);
@@ -58,6 +58,7 @@ export const Food = () => {
 
     return (<>
         <reserves.Provider value={{ reserveList: reserveLlist, setReserveList: setReserveList }}>
+            <Cart />
             <div className="food-outter" id="shop">
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
                 <div className="food-title">FOOD&drink</div>

@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import { context } from "../../App";
-import { GoShop } from "./GoShop";
 import "./Header.css"
 export const Header = (props: any) => {
     const mobile = useContext(context);
@@ -22,7 +21,6 @@ export const Header = (props: any) => {
             </div>
             {showMenu ? <Menu /> : <></>}
         </header>
-        {props.showGoshop ? <GoShop /> : <></>}
 
     </>);
 

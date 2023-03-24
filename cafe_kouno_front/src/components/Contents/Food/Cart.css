@@ -1,0 +1,47 @@
+.cart-outter {
+  position: fixed;
+  display: absolute;
+  border-radius: 14px;
+  text-decoration: none;
+  color: black;
+  font-weight: 800;
+  background-color: #dbbea4;
+  width: 14vw;
+  height: 38vh;
+  z-index: 2;
+  bottom: 1vh;
+  left: 1vw;
+}
+.cart-list-outter {
+  position: fixed;
+  background-color: white;
+  width: 12vw;
+  left: 2vw;
+  height: 26vh;
+  font-size: 15px;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
+}
+.cart-reserve-button {
+  position: fixed;
+  border-radius: 16px;
+  background-color: white;
+  width: 12vw;
+  left: 2vw;
+  bottom: 3.5vh;
+  height: 4vh;
+  margin-top: 0.5vh;
+}
+@media (max-width: 500px) {
+  .cart-outter {
+    width: 34vw;
+    height: 38vh;
+  }
+  .cart-list-outter {
+    width: 32vw;
+    font-size: 10px;
+  }
+  .cart-reserve-button {
+    width: 32vw;
+  }
+}
