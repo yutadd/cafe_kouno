@@ -58,16 +58,16 @@ export const Food = () => {
 
     return (<>
         <reserves.Provider value={{ reserveList: reserveLlist, setReserveList: setReserveList }}>
-            <Cart />
+            <Cart onClick={() => { setShowConfirm(true) }} />
             <div className="food-outter" id="shop">
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
-                <div className="food-title">FOOD&drink</div>
+                <div className="food-title">WEBご予約</div>
                 <div style={{ display: "block" }}>
                     <img className="food-image" src={subPath + "/images/11.jpg"} alt="0.jpg" />
                     <div className="food-text">
-                        <p>以下の商品は、タップしていただくことで</p>選択した後、このボタンで<p>ご予約確定画面へ遷移していただくことが</p><p>可能です。</p>
-                        <div style={{ display: "block", textAlign: "center" }}>
-                            <button onClick={() => { setShowConfirm(true) }} className="food-button">予約</button></div>
+                        <p>商品をタップしていただくことで予約可能です。</p>
+                        <p>もう一度タップすると予約取り消しができます</p>
+                        <p>詳しくは左の動画をご覧ください</p>
                     </div>
                 </div>
                 {food}

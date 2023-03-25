@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { reserves } from "./Food"
 import "./Cart.css"
-export const Cart = () => {
+export const Cart = (props: any) => {
     const { reserveList, setReserveList } = useContext(reserves);
 
     const result = [];
@@ -21,7 +21,7 @@ export const Cart = () => {
                     <div className="cart-list-outter">
                         {result}
                     </div>
-                    <div className="cart-reserve-button">予約ボタン</div>
+                    <div className="cart-reserve-button" onClick={props.onClick}>予約ボタン</div>
                 </div > :
                     <></>
             }
