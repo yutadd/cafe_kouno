@@ -22,7 +22,7 @@ export const DeleteProduct = () => {
         }).then((raw) => { if (raw.ok) raw.text().then((text) => alert(text)) });
     }
     const load = (id: string) => {
-        fetch("http://" + stateContext.apiPath + "/product/" + id).then((raw) => {
+        fetch("https://" + stateContext.apiPath + "/product/" + id).then((raw) => {
             if (raw.ok) raw.json().then((json) => {
                 setName(json["productName"]);
                 setPrice(json["price"]);

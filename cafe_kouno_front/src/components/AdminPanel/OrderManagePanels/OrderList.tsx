@@ -15,7 +15,7 @@ export const OrderList = () => {
                     for (const elm of json) {
                         let parsed = new Date(elm["reserveDate"]);
                         parsed.setHours(parsed.getHours() + 9);
-                        result.push(<tr onClick={()=>setSelectedOrder(elm["orderId"])} key={elm["orderId"]} className="orders-record">
+                        result.push(<tr onClick={() => setSelectedOrder(elm["orderId"])} key={elm["orderId"]} className="orders-record">
                             <td>{elm["name"]}</td>
                             <td>{elm["valid"] + ""}</td>
                             <td>{elm["orderId"]}</td>
@@ -33,7 +33,7 @@ export const OrderList = () => {
         });
     }
     const deleteFilled = (mode: number) => {
-        fetch("http://" + stateContext.apiPath + "/delorders?mode=" + mode, { credentials: 'include' }).then((row) => {
+        fetch("https://" + stateContext.apiPath + "/delorders?mode=" + mode, { credentials: 'include' }).then((row) => {
             if (row.ok) {
                 row.text().then((text) => {
                     alert(text);
