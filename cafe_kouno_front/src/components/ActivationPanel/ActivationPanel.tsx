@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { context } from "../../App";
 
 const doCancel = (apiPath: string, id: string) => {
-    fetch("http://" + apiPath + "/activation/" + id, { method: 'post', }).then((t) => t.text().then((text) => alert(text)));
+    fetch("https://" + apiPath + "/activation/" + id, { method: 'post', }).then((t) => t.text().then((text) => alert(text)));
 }
 export const ActivationPanel = () => {
     const statecontext = useContext(context);

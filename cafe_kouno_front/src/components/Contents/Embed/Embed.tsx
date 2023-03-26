@@ -6,7 +6,7 @@ export const Embed = () => {
     const [loaded, setloaded] = useState(false);
     const { apiPath, subPath } = useContext(context);
     useEffect(() => {
-        fetch("http://" + apiPath + "/igPosts").then((c) => c.json().then((j) => {
+        fetch("https://" + apiPath + "/igPosts").then((c) => c.json().then((j) => {
             let result = [];
             for (let url of j) {
                 console.log(url)

@@ -8,7 +8,7 @@ export const OrderList = () => {
     const [page, setPange] = useState(0);
     const { selectedOrder, setSelectedOrder } = useContext(orderContext);
     const getOrders = (mode: number, page: number) => {
-        fetch("http://" + stateContext.apiPath + "/orders?mode=" + mode + "&page=" + page, { credentials: 'include' }).then((row) => {
+        fetch("https://" + stateContext.apiPath + "/orders?mode=" + mode + "&page=" + page, { credentials: 'include' }).then((row) => {
             if (row.ok) {
                 row.json().then((json) => {
                     const result = [];

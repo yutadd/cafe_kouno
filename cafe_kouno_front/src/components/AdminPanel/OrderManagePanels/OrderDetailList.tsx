@@ -7,7 +7,7 @@ export const OrderDetailList = () => {
     const stateContext = useContext(context);
     const [orderDetailElements, setOrderDetailElements] = useState<JSX.Element[]>([]);
     useEffect(() => {
-        fetch("http://" + stateContext.apiPath + "/getorderdetail?id=" + selectedOrder, { credentials: 'include' }).then((row) => {
+        fetch("https://" + stateContext.apiPath + "/getorderdetail?id=" + selectedOrder, { credentials: 'include' }).then((row) => {
             if (row.ok) {
                 row.json().then((json) => {
                     const result = [];

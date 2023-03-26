@@ -29,7 +29,7 @@ export const Food = () => {
     const [showConfirm, setShowConfirm] = useState(false);
     const { apiPath, subPath } = useContext(context);
     useEffect(() => {
-        fetch("http://" + apiPath + "/products").then((t) => t.json().then((j) => {
+        fetch("https://" + apiPath + "/products").then((t) => t.json().then((j) => {
             let _food = [];
             let hot_coffee = [];
             let ice_coffee = [];

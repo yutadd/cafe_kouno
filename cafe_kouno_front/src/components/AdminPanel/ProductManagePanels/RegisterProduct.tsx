@@ -13,7 +13,7 @@ export const RegisterDrink = () => {
     const [drink, setDrink] = useState(false);
     const [category, setCategory] = useState("loading");
     const doRegister = () => {
-        fetch("http://" + stateContext.apiPath + "/register", {
+        fetch("https://" + stateContext.apiPath + "/register", {
             method: "post", credentials: "include", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(
                 {
                     productId: id,

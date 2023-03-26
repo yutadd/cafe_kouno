@@ -3,7 +3,7 @@ import { context } from "../../../App";
 import "./LoginPanel.css"
 function doLogin(password: string, apiPath: string, setLogin: (param: boolean) => void) {
 
-    fetch("http://" + apiPath + "/login?password=" + password, { method: "post", credentials: 'include' }).then((raw) => { raw.text().then((text) => alert(text + raw.ok)); setLogin(raw.ok) });
+    fetch("https://" + apiPath + "/login?password=" + password, { method: "post", credentials: 'include' }).then((raw) => { raw.text().then((text) => alert(text + raw.ok)); setLogin(raw.ok) });
 }
 export const LoginPanel = (props: any) => {
     const [password, setPassword] = useState("");

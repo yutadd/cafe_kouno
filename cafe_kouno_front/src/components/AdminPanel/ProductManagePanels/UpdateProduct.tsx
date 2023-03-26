@@ -17,7 +17,7 @@ export const UpdateDrink = () => {
         if (id !== "") load(id);
     }, [id]);
     const doUpdate = () => {
-        fetch("http://" + stateContext.apiPath + "/update", {
+        fetch("https://" + stateContext.apiPath + "/update", {
             method: "PATCH", credentials: "include", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(
                 {
                     productId: id,

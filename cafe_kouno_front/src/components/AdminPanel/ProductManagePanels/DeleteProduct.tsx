@@ -17,7 +17,7 @@ export const DeleteProduct = () => {
         if (id !== "") load(id);
     }, [id]);
     const doDelete = () => {
-        fetch("http://" + stateContext.apiPath + "/delete?id=" + id, {
+        fetch("https://" + stateContext.apiPath + "/delete?id=" + id, {
             method: "DELETE", credentials: "include", headers: { 'Content-Type': 'application/json' }
         }).then((raw) => { if (raw.ok) raw.text().then((text) => alert(text)) });
     }

@@ -3,14 +3,14 @@ import { useParams } from "react-router-dom";
 import { context } from "../../App";
 import "./CancelPanel.css"
 const doCancel = (apiPath: string, id: string) => {
-    fetch("http://" + apiPath + "/cancel/" + id, { method: 'post', }).then((t) => t.text().then((text) => alert(text)));
+    fetch("https://" + apiPath + "/cancel/" + id, { method: 'post', }).then((t) => t.text().then((text) => alert(text)));
 }
 export const CancelPanel = () => {
     const statecontext = useContext(context);
     const [button, setButton] = useState(<></>);
     const { id } = useParams<{ id: string }>();
     useEffect(() => {
-        fetch("http://" + statecontext.apiPath + "/cancelable/" + id,).then((t) => {
+        fetch("https://" + statecontext.apiPath + "/cancelable/" + id,).then((t) => {
             t.text().then((t2) => {
                 if (t2 === "true") {
                     setButton(<div onClick={() => doCancel(statecontext.apiPath, id)} className="cancel-panel-button">

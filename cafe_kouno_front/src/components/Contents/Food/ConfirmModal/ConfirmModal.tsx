@@ -23,7 +23,7 @@ export const ConfirmModal = (props: any) => {
             products.push({ "product_id": elm.id, "amount": elm.amount, size: elm.size });
         }
         console.log(JSON.stringify({ name: name, mail: email, products: products }));
-        fetch("http://" + apiPath + "/order", { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, mail: email, products: products }) })
+        fetch("https://" + apiPath + "/order", { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, mail: email, products: products }) })
         alert('ご注文を確定いたしました！\r\nメールの送信が完了するまで少しお待ち頂く場合がございます');
         setShowConfirm(false);
     }
