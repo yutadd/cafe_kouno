@@ -1,0 +1,17 @@
+.order-outter {
+  padding-top: 100px;
+}
+.order-list-manage-button {
+  display: inline-block;
+  margin-left: 30px;
+  border-radius: 10px;
+  background-color: #dbbea4;
+  padding: 4px;
+}
+.order-table {
+  border-collapse: collapse;
+}
+.order-table td {
+  border-left: 1px solid gray;
+  border-bottom: 1px solid gray;
+}

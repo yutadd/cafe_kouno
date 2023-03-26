@@ -1,11 +1,18 @@
 package com.yutadd.service;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.yutadd.model.OrderDetailModel;
@@ -35,7 +42,7 @@ public class OrderService {
 			OrderDetailModel odm=new OrderDetailModel(String.valueOf(new Random().nextInt()),reserveId,p.getSize(),p.getProduct_id(),p.getAmount());
 			odRepo.save(odm);
 		}
-		OrderModel om=new OrderModel(name,false,reserveId,new Timestamp(System.currentTimeMillis()),false,false,false);
+		OrderModel om=new OrderModel(name,false,reserveId,new Timestamp(System.currentTimeMillis()),false,false,false,false,mail);
 		oRepo.save(om);
 		try {
 			smServ.sendMail(reserveId, mail,products);
@@ -90,8 +97,53 @@ public class OrderService {
 			return "指定されたご注文が見つかりません。urlに間違いがないかご確認ください。問題が再発する場合、その旨を連絡していただけると助かります。";
 		}
 	}
-	public List<OrderModel> getOrders(){
-		return oRepo.findAllByValidTrue();
+	/**
+	 * 0:有効かつキャンセルされていないもの
+	 * 1:すべて(削除されていないもの)
+	 * 2:削除されたもの*/
+	public ResponseEntity<List<OrderModel>> getOrders(int mode,int page){
+		Pageable pageable=PageRequest.of(page, 20, Sort.by("reserveDate").ascending());
+		if(mode==0) {
+			return ResponseEntity.ok(oRepo.findAllByDeletedFalseAndCancelledFalseAndValidTrue(pageable));
+		}else if(mode==1){
+			return ResponseEntity.ok(oRepo.findAllByDeletedFalse(pageable));
+		}else if(mode==2){
+			return ResponseEntity.ok(oRepo.findAllByDeletedTrue(pageable));
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<OrderModel>());
+		}
+	}
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(String id){
+		try{
+			System.out.println(id);
+			return ResponseEntity.ok(odRepo.findAllByOrderId(id));
+		}catch(Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<OrderDetailModel>());
+		}
+	}
+	/**
+	 * 0:キャンセルされたもの
+	 * 1:filledされたもの
+	 * 2:注文から30分間以上有効化されなかったもの*/
+	public ResponseEntity<String> delOrders(int mode){
+		if(mode==0) {
+			oRepo.deleteAllByCancelledTrue();
+			return ResponseEntity.ok("Delete success");
+		}else if(mode==1){
+			oRepo.deleteAllByFilledTrue();
+			return ResponseEntity.ok("Delete success");
+		}else if(mode==2) {
+			List<OrderModel> targets=oRepo.findByValidIsFalseAndReserveDateBefore(Timestamp.from(Instant.now().minus(Duration.ofMinutes(30))));
+			for(OrderModel target:targets) {
+				target.setDeleted(true);
+				oRepo.save(target);
+			}
+			return ResponseEntity.ok("Delete success");
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("requested mode was not found");
+		}
+
 	}
 	public List<ProductModel> getProducts(){
 		return pRepo.findAll();

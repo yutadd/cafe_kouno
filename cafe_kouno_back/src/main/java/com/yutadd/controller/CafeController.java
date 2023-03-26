@@ -1,10 +1,10 @@
 package com.yutadd.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
 import com.yutadd.model.ProductModel;
 import com.yutadd.model.request.OrderRequestParamModel;
 import com.yutadd.service.ControlService;
@@ -58,8 +60,20 @@ public class CafeController {
 		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
 	}
 	@GetMapping(value="/orders")
-	public ResponseEntity<List> orderList(){
-		return ResponseEntity.ok(oServ.getOrders());
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
 	}
 	@GetMapping(value="/products")
 	public ResponseEntity<List> productList(){

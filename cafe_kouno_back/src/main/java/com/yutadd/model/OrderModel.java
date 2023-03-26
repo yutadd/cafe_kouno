@@ -28,6 +28,8 @@ public class OrderModel {
 	private boolean filled;
 	private boolean cancelled;
 	private boolean ready;
+	private boolean deleted;
+	private String email;
 	@Tolerate
 	public OrderModel() {}
 }
