@@ -14,7 +14,7 @@ export const OrderList = () => {
                     const result = [];
                     for (const elm of json) {
                         let parsed = new Date(elm["reserveDate"]);
-                        parsed.setHours(parsed.getHours() + 9);
+                        //parsed.setHours(parsed.getHours() + 9);
                         result.push(<tr onClick={() => setSelectedOrder(elm["orderId"])} key={elm["orderId"]} className="orders-record">
                             <td>{elm["name"]}</td>
                             <td>{elm["valid"] + ""}</td>
