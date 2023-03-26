@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { context } from "../../../App"
+import { orderContext } from "../../OrderManager";
 import "./OrderList.css"
 export const OrderList = () => {
     const stateContext = useContext(context);
     const [orderRecords, setOrderRecords] = useState<JSX.Element[]>([]);
     const [page, setPange] = useState(0);
-
+    const { selectedOrder, setSelectedOrder } = useContext(orderContext);
     const getOrders = (mode: number, page: number) => {
         fetch("http://" + stateContext.apiPath + "/orders?mode=" + mode + "&page=" + page, { credentials: 'include' }).then((row) => {
             if (row.ok) {
@@ -14,7 +15,7 @@ export const OrderList = () => {
                     for (const elm of json) {
                         let parsed = new Date(elm["reserveDate"]);
                         parsed.setHours(parsed.getHours() + 9);
-                        result.push(<tr key={elm["orderId"]} className="orders-record">
+                        result.push(<tr onClick={()=>setSelectedOrder(elm["orderId"])} key={elm["orderId"]} className="orders-record">
                             <td>{elm["name"]}</td>
                             <td>{elm["valid"] + ""}</td>
                             <td>{elm["orderId"]}</td>
