@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpSession;
 /**
  * http://ws-hackathon2023-teams01.pencilsystems.site/ or http://localhost:3000/
  */
-@CrossOrigin(origins = "http://ws-hackathon2023-teams01.pencilsystems.site/", allowCredentials = "true", methods = { RequestMethod.GET,
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true", methods = { RequestMethod.GET,
 		RequestMethod.POST, RequestMethod.PATCH, RequestMethod.OPTIONS, RequestMethod.DELETE })
 @RequestMapping(value = "/")
 public class CafeController {

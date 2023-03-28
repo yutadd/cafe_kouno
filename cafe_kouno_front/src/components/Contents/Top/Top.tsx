@@ -3,10 +3,6 @@ import { context } from "../../../App";
 import "./Top.css";
 export const Top = () => {
     const { apiPath, subPath } = useContext(context);
-    const [imageEl, setImageEl] = useState(<></>);
-    const [image_num, setImageNum] = useState(0);
-    useEffect(() => {
-    })
     return (<div className="top-container">
         <div className="top-image-slides">
             <img src={subPath + "/images/slide-0.jpg"} className="top-image" alt="" />

@@ -3,14 +3,16 @@ import { reserves } from "./Food"
 import "./Cart.css"
 export const Cart = (props: any) => {
     const { reserveList, setReserveList } = useContext(reserves);
-
-    const result = [];
-    for (const elm of reserveList) {
-        result.push(<div key={elm.id} className="cart-item-outter">
-            {elm.name}(￥{elm.price}) x {elm.amount} =￥{elm.price * elm.amount}
-        </div>)
-    }
-
+    const [products, setproducts] = useState<JSX.Element[]>([])
+    useEffect(() => {
+        const _result = [];
+        for (const elm of reserveList) {
+            _result.push(<div key={elm.id} className="cart-item-outter">
+                {elm.name}(￥{elm.price}) x {elm.amount} =￥{elm.price * elm.amount}
+            </div>)
+        }
+        setproducts(_result)
+    }, [reserveList])
     return (
         <>
             {
@@ -19,7 +21,7 @@ export const Cart = (props: any) => {
                         カート
                     </div>
                     <div className="cart-list-outter">
-                        {result}
+                        {products}
                     </div>
                     <div className="cart-reserve-button" onClick={props.onClick}>予約ボタン</div>
                 </div > :

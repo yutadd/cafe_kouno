@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./ConfirmModal.css"
 import { ReserveContextType, reserves } from "../Food";
 import { ConfirmModalInput } from "./ConfirmModalInput";
@@ -10,13 +10,19 @@ export const ConfirmModal = (props: any) => {
     const [email, setEmail] = useState<string>("");
     const [name, setName] = useState<string>("");
     const { apiPath, subPath } = useContext(context);
-    let products = [];
-    let sum = 0;
-    for (const elm of reserveList) {
-        products.push(<><div className="confirm-modal-products-item">{elm.name}x{elm.amount}　　小計￥{elm.price * elm.amount}</div></>);
-        sum += elm.price * elm.amount;
-    }
     const setShowConfirm = props.closeFunc;
+    const [products, setProducts] = useState<JSX.Element[]>([]);
+    const [sum, setSum] = useState(0)
+    useEffect(() => {
+        let sum = 0;
+        let _products = [];
+        for (const elm of reserveList) {
+            _products.push(<><div className="confirm-modal-products-item">{elm.name}x{elm.amount}　　小計￥{elm.price * elm.amount}</div></>);
+            sum += elm.price * elm.amount;
+        }
+        setProducts(_products);
+        setSum(sum);
+    }, [reserveList])
     const doReserve = () => {
         let products = [];
         for (const elm of reserveList) {
