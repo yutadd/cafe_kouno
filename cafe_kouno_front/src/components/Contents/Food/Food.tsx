@@ -59,11 +59,11 @@ export const Food = () => {
     return (<>
         <reserves.Provider value={{ reserveList: reserveLlist, setReserveList: setReserveList }}>
             <Cart onClick={() => { setShowConfirm(true) }} />
-            <div className="food-outter" id="shop">
+            <div className="food-outter" id="food">
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
                 <div className="food-title">WEBご予約</div>
                 <div style={{ display: "block" }}>
-                    <img className="food-image" src={subPath + "/images/11.jpg"} alt="0.jpg" />
+                    <img className="food-image" src={subPath + "/images/11.webp"} alt="0.webp" />
                     <div className="food-text">
                         <p>商品をタップしていただくことで予約可能です。</p>
                         <p>もう一度タップすると予約取り消しができます</p>
@@ -71,7 +71,7 @@ export const Food = () => {
                     </div>
                 </div>
                 {food}
-                <div className="food-title">DRINK</div>
+                <div id="drink" className="food-title">DRINK</div>
                 ドリンクをご予約いただくには、それぞれのサイズをタップしてください
                 <div className="big-category-outter">
                     <div className="sub-title">Coffee/コーヒー</div>

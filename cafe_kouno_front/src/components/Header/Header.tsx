@@ -7,10 +7,10 @@ export const Header = (props: any) => {
     const [showMenu, setShowMenu] = useState(false);
     const Menu = () => {
         return (<>
-            <a className="menu-item" href="/#dummy">カフェ向野</a>
-            <a className="menu-item" href="/#dummy">FOOD</a>
-            <a className="menu-item" href="/#dummy">DRINK</a>
-            <a className="menu-item" href="/#dummy">ACCESS</a>
+            <a className="menu-item" href="/#top">カフェ向野</a>
+            <a className="menu-item" href="/#food">FOOD</a>
+            <a className="menu-item" href="/#drink">DRINK</a>
+            <a className="menu-item" href="/#access">ACCESS</a>
         </>)
     }
     return (<>

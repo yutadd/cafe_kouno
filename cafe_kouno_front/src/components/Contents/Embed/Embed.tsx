@@ -24,7 +24,7 @@ export const Embed = () => {
             {igTiles}
         </div>
         {loaded && <script src="https://www.instagram.com/embed.js" />}
-        <div className="embed-map-title">アクセスマップ！</div>
+        <div id="access" className="embed-map-title">アクセスマップ！</div>
         <div className="embed-map" dangerouslySetInnerHTML={{
             __html: "<iframe  \
         style=\"border:0\" loading=\"lazy\" allowfullscreen\

@@ -72,7 +72,7 @@ export const FoodPanel = (props: any) => {
     }
 
     return (<><div className='food-panel-outter'>
-        <img onClick={() => doReserve()} className={getIndex(product_id) != -1 ? "food-panel-image food-selected-border" : "food-panel-image"} src={subPath + "/images/" + props.product_id + ".jpg"} alt="food_image" />
+        <img onClick={() => doReserve()} className={getIndex(product_id) != -1 ? "food-panel-image food-selected-border" : "food-panel-image"} src={subPath + "/images/" + props.product_id + ".webp"} alt="food_image" />
         {getIndex(product_id) != -1 ? <>
             <div onClick={() => changeamount(false)} className='reserve-amount-button'>-</div>
             <div className='reserve-amount-text'>{amount}</div>

@@ -7,7 +7,7 @@ export const Introduce = () => {
         <div className="introduce-title">カフェ向野</div>
         <div className="introduce-outter">
             <div className="introduce-image-outter">
-            <img className="introduce-image" src={subPath + "/images/Image0008.jpg"} alt="Image0008.jpg" />
+            <img className="introduce-image" src={subPath + "/images/Image0008.webp"} alt="Image0008.webp" />
             </div>
             <div className="introduce-text">
                 <p>当店では、美味しいコーヒーへのご要望に</p>

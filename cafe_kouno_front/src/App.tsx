@@ -1,4 +1,4 @@
-import React, { createContext, } from 'react';
+import React, { createContext, useEffect, } from 'react';
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { Activation } from './components/Activation';
@@ -16,6 +16,14 @@ export type context_type = {
 const initialValue: context_type = { apiPath: "yutadd.com:8080", subPath: "" };
 export const context = createContext<context_type>(initialValue);
 function App() {
+  useEffect(() => {
+    setTimeout(() => {
+      const targetEl = document.getElementById(window.location.hash.split('#')[1]);
+      console.log(window.location.hash.split('#')[1]);
+      console.log("scrolling to " + targetEl);
+      targetEl?.scrollIntoView({ behavior: 'smooth' });
+    }, 500);
+  }, []);
   return (
     <>
       <context.Provider value={initialValue}>
