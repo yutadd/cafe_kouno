@@ -1738,3 +1738,3029 @@ This warning can be switched off on the Team > Git > Confirmations and Warnings 
 
 !ENTRY org.eclipse.ui 2 2 2023-03-26 16:16:35.285
 !MESSAGE Invalid property category path: org.springframework.ide.eclipse.beans.ui.properties.ProjectPropertyPage (bundle: org.springframework.ide.eclipse.xml.namespaces, propertyPage: org.springframework.ide.eclipse.beans.ui.namespaces.projectPropertyPage)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:04.879
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready()  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4884 and length is -77.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:04.882
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4884 and length is -77.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:04.883
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4884 and length is -77.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:06.625
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(String)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:06.626
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:06.626
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:09.376
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(pathString)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:09.377
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:09.378
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:10.938
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(String)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:10.939
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:10.940
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:12.831
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestString)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:12.832
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:12.832
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:13.578
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestPString)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:13.579
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:13.579
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:15.988
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestParam)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:15.989
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:15.989
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4883 and length is -76.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:20.940
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestParam String[])  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4905 and length is -98.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:20.941
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4905 and length is -98.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:20.941
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4905 and length is -98.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:21.913
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestParam String[] ar)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:21.914
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:21.915
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:23.063
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestParam String[] )  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4906 and length is -99.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:23.064
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4906 and length is -99.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:23.065
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4906 and length is -99.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:25.985
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestParam String[] order)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:25.986
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:25.986
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.core 4 4 2023-03-28 11:45:29.934
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.yutadd.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.yutadd.model.OrderDetailModel;
+import com.yutadd.model.OrderModel;
+import com.yutadd.model.ProductModel;
+import com.yutadd.model.request.OrderRequestParamModel;
+import com.yutadd.service.ControlService;
+import com.yutadd.service.OrderService;
+import com.yutadd.service.SNSService;
+
+import jakarta.servlet.http.HttpSession;
+
+
+@RestController
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/
+ * or http://localhost:3000/
+ * */
+@CrossOrigin(origins = "http://localhost:3000/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
+@RequestMapping(value="/")
+public class CafeController {
+	@Autowired
+	OrderService oServ;
+	@Autowired
+	SNSService sServ;
+	RequestMethod[] methods=RequestMethod.values();
+	@Autowired
+	ControlService cServ;
+	@Autowired
+	private HttpSession session;
+	@PostMapping(value="/order")
+	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+	}
+	@PostMapping(value="/activation/{oid}")
+	public ResponseEntity<String> activation(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doActivation(oid));
+	}
+	@PostMapping(value="/cancel/{oid}")
+	public ResponseEntity<String> cencel(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.doCancel(oid));
+	}
+	@GetMapping(value="/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid){
+		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+	}
+	
+	@GetMapping(value="/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+		System.out.println(session.getId());
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
+			return oServ.getOrders(mode,page);
+		}
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
+	}
+	@GetMapping(value="/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+		return oServ.getOrderDetail(id);
+	}
+	@GetMapping(value="/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode){
+		return oServ.delOrders(mode);
+	}
+	@GetMapping(value="/products")
+	public ResponseEntity<List> productList(){
+		return ResponseEntity.ok(oServ.getProducts());
+	}
+	@GetMapping(value="/igPosts")
+	public ResponseEntity<List<String>> getIgPosts(){
+		return ResponseEntity.ok(sServ.getPosts(1));
+	}
+	@GetMapping(value="/igImages")
+	public ResponseEntity<List<String>> getIgImages(){
+		return ResponseEntity.ok(sServ.getPosts(0));
+	}
+	@PostMapping(value="/login")
+	public ResponseEntity<String> login(@RequestParam String password){
+		System.out.println(session.getId());
+		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		session.setAttribute("login", result);
+
+		if(result) {
+			return ResponseEntity.ok("ログイン完了しました！");
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
+	}
+	@GetMapping(value="/login")
+	public ResponseEntity<String> getLogin(){
+		System.out.println(session.getId());
+		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+	}
+	@PatchMapping(value="/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.change_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value="/order/ready")
+	public ResponseEntity<String> ready(RequestParam String[] targets)  
+	@PostMapping(value="/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.register_drink(product));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@GetMapping(value="/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid){
+		return cServ.getProduct(pid);
+	}
+	
+	@DeleteMapping(value="/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id){
+		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+			return  ResponseEntity.ok(cServ.delProduct(id));
+		}else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+}
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2023-03-28 11:45:29.935
+!MESSAGE プラグイン "org.eclipse.jdt.ui" からのコードの起動で問題が発生しました。
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2023-03-28 11:45:29.936
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException: startPos = 4902 and length is -95.
+This breaks the rule that lengths are not allowed to be negative. Affected Node:
+class org.eclipse.jdt.core.dom.Block: {
+}
+
+	at lombok.eclipse.agent.PatchDiagnostics.setSourceRangeCheck(PatchDiagnostics.java:36)
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3390)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1534)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:540)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:201)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:266)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:597)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1142)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:740)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:806)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1319)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:94)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:91)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:158)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:207)
+
+!ENTRY org.eclipse.lsp4e 2 0 2023-03-28 12:39:42.899
+!MESSAGE Javadoc unavailable. Failed to obtain it.
+!STACK 0
+java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:386)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.getHoverInfo2(LSJavaHoverProvider.java:70)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:163)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:130)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:155)
+
+!ENTRY org.eclipse.lsp4e 2 0 2023-03-28 12:52:33.104
+!MESSAGE Javadoc unavailable. Failed to obtain it.
+!STACK 0
+java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:386)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.getHoverInfo2(LSJavaHoverProvider.java:70)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:163)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:130)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:155)
+
+!ENTRY org.eclipse.lsp4e 2 0 2023-03-28 12:53:14.084
+!MESSAGE Javadoc unavailable. Failed to obtain it.
+!STACK 0
+java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:386)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.getHoverInfo2(LSJavaHoverProvider.java:70)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:163)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:130)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:155)
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2023-03-28 12:53:14.108
+!MESSAGE 内部エラー
+!STACK 1
+Java Model Exception: Error in Java Model (code 969): fillOrder(String[])#2 [in OrderService [in [Working copy] OrderService.java [in com.yutadd.service [in src/main/java [in cafe_kouno_back]]]]] は存在しません
+	at org.eclipse.jdt.internal.core.JavaElement.newNotPresentException(JavaElement.java:574)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:617)
+	at org.eclipse.jdt.internal.core.JavaElement.getElementInfo(JavaElement.java:328)
+	at org.eclipse.jdt.internal.core.JavaElement.getElementInfo(JavaElement.java:314)
+	at org.eclipse.jdt.internal.core.SourceRefElement.getSourceRange(SourceRefElement.java:233)
+	at org.eclipse.jdt.internal.core.Member.getJavadocRange(Member.java:301)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContentFromSource(JavadocContentAccess2.java:644)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:520)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:748)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:666)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:658)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.lambda$0(LSJavaHoverProvider.java:68)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1182)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165)
+!SUBENTRY 1 org.eclipse.jdt.core 4 969 2023-03-28 12:53:14.108
+!MESSAGE fillOrder(String[])#2 [in OrderService [in [Working copy] OrderService.java [in com.yutadd.service [in src/main/java [in cafe_kouno_back]]]]] は存在しません

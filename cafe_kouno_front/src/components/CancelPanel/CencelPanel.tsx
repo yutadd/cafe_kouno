@@ -16,6 +16,10 @@ export const CancelPanel = () => {
                     setButton(<div onClick={() => doCancel(statecontext.apiPath, id)} className="cancel-panel-button">
                         ご注文キャンセル実行
                     </div>)
+                }else{
+                    setButton(<div  className="cancel-panel-button">
+                        商品状況により、キャンセル不可能でした。
+                    </div>)
                 }
             })
         })

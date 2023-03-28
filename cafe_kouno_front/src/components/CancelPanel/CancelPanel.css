@@ -12,6 +12,9 @@
   text-align: left;
   width: 500px;
 }
+.cancel-panel-button-disabled {
+  background-color: gray;
+}
 .cancel-panel-contents-outter {
   width: 500px;
   display: inline-block;

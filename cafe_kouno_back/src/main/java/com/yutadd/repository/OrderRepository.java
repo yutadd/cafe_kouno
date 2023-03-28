@@ -15,7 +15,7 @@ public interface OrderRepository extends JpaRepository<OrderModel, String>{
 	List<OrderModel> findAllByDeletedFalseAndCancelledFalseAndValidTrue(Pageable pageable);
 	List<OrderModel> findAllByDeletedFalse(Pageable pageable);
 	List<OrderModel> findAllByDeletedTrue(Pageable pageable);
-	void deleteAllByCancelledTrue();
-	void deleteAllByFilledTrue();
+	List<OrderModel> findAllByCancelledTrue();
+	List<OrderModel> findAllByFilledTrue();
 	List<OrderModel> findByValidIsFalseAndReserveDateBefore(Timestamp time);
 }

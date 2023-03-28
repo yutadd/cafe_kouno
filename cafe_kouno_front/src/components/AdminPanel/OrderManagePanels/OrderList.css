@@ -9,9 +9,33 @@
   padding: 4px;
 }
 .order-table {
+  margin-top: -20px;
   border-collapse: collapse;
 }
 .order-table td {
   border-left: 1px solid gray;
   border-bottom: 1px solid gray;
+}
+.order-paging-outter {
+  display: block;
+  text-align: center;
+}
+.order-paging-button {
+  display: inline-block;
+  font-size: 50px;
+}
+.order-paging-num {
+  display: inline-block;
+  font-size: 25px;
+  vertical-align: super;
+  width: 50px;
+}
+.order-list-title {
+  font-size: 25px;
+}
+.order-detail-title {
+  font-size: 25px;
+}
+.order-detail-subtitle {
+  font-size: 20;
 }

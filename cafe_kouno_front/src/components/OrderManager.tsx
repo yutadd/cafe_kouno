@@ -1,22 +1,18 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Admin } from "./AdminPanel/Admin"
 import { OrderDetailList } from "./AdminPanel/OrderManagePanels/OrderDetailList";
 import { OrderList } from "./AdminPanel/OrderManagePanels/OrderList"
 import { Header } from "./Header/Header"
 
-export type orderContextType = { selectedOrder: string, setSelectedOrder: (value: string) => void };
-const initialValue: orderContextType = { selectedOrder: "initialValue", setSelectedOrder: (value: string) => { console.log("executed setSelectedOrder with initial value") } }
+export type orderContextType = { selectedOrders: string[], setSelectedOrders: any };
+const initialValue: orderContextType = { selectedOrders: [], setSelectedOrders: () => { } }
 export const orderContext = createContext<orderContextType>(initialValue);
 export const OrderManager = () => {
-    const [selectedOrder, setSelectedOrder] = useState("0");
-    const _orderContext: orderContextType = {
-        selectedOrder: selectedOrder, setSelectedOrder: setSelectedOrder
-    }
+    const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
     return (<>
-
         <Header />
         <Admin>
-            <orderContext.Provider value={_orderContext}>
+            <orderContext.Provider value={{ selectedOrders, setSelectedOrders }}>
                 <OrderList />
                 <OrderDetailList />
             </orderContext.Provider>

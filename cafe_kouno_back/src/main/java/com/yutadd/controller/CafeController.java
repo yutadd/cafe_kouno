@@ -29,105 +29,151 @@ import com.yutadd.service.SNSService;
 
 import jakarta.servlet.http.HttpSession;
 
-
 @RestController
-@CrossOrigin(origins = "http://ws-hackathon2023-teams01.pencilsystems.site/", allowCredentials = "true",methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PATCH,RequestMethod.OPTIONS,RequestMethod.DELETE})
-@RequestMapping(value="/")
+/**
+ * http://ws-hackathon2023-teams01.pencilsystems.site/ or http://localhost:3000/
+ */
+@CrossOrigin(origins = "http://ws-hackathon2023-teams01.pencilsystems.site/", allowCredentials = "true", methods = { RequestMethod.GET,
+		RequestMethod.POST, RequestMethod.PATCH, RequestMethod.OPTIONS, RequestMethod.DELETE })
+@RequestMapping(value = "/")
 public class CafeController {
 	@Autowired
 	OrderService oServ;
 	@Autowired
 	SNSService sServ;
-	RequestMethod[] methods=RequestMethod.values();
+	RequestMethod[] methods = RequestMethod.values();
 	@Autowired
 	ControlService cServ;
 	@Autowired
 	private HttpSession session;
-	@PostMapping(value="/order")
+
+	@PostMapping(value = "/order")
 	public ResponseEntity<String> order(@RequestBody OrderRequestParamModel orm) {
-		return ResponseEntity.ok(oServ.doReserve(orm.getName(),orm.getMail(),orm.getProducts()));
+		return ResponseEntity.ok(oServ.doReserve(orm.getName(), orm.getMail(), orm.getProducts()));
 	}
-	@PostMapping(value="/activation/{oid}")
+
+	@PostMapping(value = "/activation/{oid}")
 	public ResponseEntity<String> activation(@PathVariable String oid) {
 		return ResponseEntity.ok(oServ.doActivation(oid));
 	}
-	@PostMapping(value="/cancel/{oid}")
+
+	@PostMapping(value = "/cancel/{oid}")
 	public ResponseEntity<String> cencel(@PathVariable String oid) {
 		return ResponseEntity.ok(oServ.doCancel(oid));
 	}
-	@GetMapping(value="/cancelable/{oid}")
-	public ResponseEntity<String> cancelable(@PathVariable String oid){
-		return ResponseEntity.ok(oServ.isCancelable(oid)?"true":"false");
+
+	@GetMapping(value = "/cancelable/{oid}")
+	public ResponseEntity<String> cancelable(@PathVariable String oid) {
+		return ResponseEntity.ok(oServ.isCancelable(oid) ? "true" : "false");
 	}
-	@GetMapping(value="/orders")
-	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page){
+
+	@GetMapping(value = "/orders")
+	public ResponseEntity<List<OrderModel>> orderList(@RequestParam int mode, @RequestParam int page) {
 		System.out.println(session.getId());
-		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")){
-			return oServ.getOrders(mode,page);
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
+			return oServ.getOrders(mode, page);
 		}
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ArrayList<OrderModel>());
 	}
-	@GetMapping(value="/getorderdetail")
-	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id){
+
+	@GetMapping(value = "/getorderdetail")
+	public ResponseEntity<List<OrderDetailModel>> getOrderDetail(@RequestParam String id) {
 		return oServ.getOrderDetail(id);
 	}
-	@GetMapping(value="/delorders")
-	public ResponseEntity<String> delOrders(@RequestParam int mode){
+
+	@GetMapping(value = "/delorders")
+	public ResponseEntity<String> delOrders(@RequestParam int mode) {
 		return oServ.delOrders(mode);
 	}
-	@GetMapping(value="/products")
-	public ResponseEntity<List> productList(){
+
+	@GetMapping(value = "/products")
+	public ResponseEntity<List> productList() {
 		return ResponseEntity.ok(oServ.getProducts());
 	}
-	@GetMapping(value="/igPosts")
-	public ResponseEntity<List<String>> getIgPosts(){
+
+	@GetMapping(value = "/igPosts")
+	public ResponseEntity<List<String>> getIgPosts() {
 		return ResponseEntity.ok(sServ.getPosts(1));
 	}
-	@GetMapping(value="/igImages")
-	public ResponseEntity<List<String>> getIgImages(){
+
+	@GetMapping(value = "/igImages")
+	public ResponseEntity<List<String>> getIgImages() {
 		return ResponseEntity.ok(sServ.getPosts(0));
 	}
-	@PostMapping(value="/login")
-	public ResponseEntity<String> login(@RequestParam String password){
+
+	@PostMapping(value = "/login")
+	public ResponseEntity<String> login(@RequestParam String password) {
 		System.out.println(session.getId());
-		boolean result=new BCryptPasswordEncoder().matches(password,System.getenv("CAFE_KOUNO_PASSWORD"));
+		boolean result = new BCryptPasswordEncoder().matches(password, System.getenv("CAFE_KOUNO_PASSWORD"));
 		session.setAttribute("login", result);
 
-		if(result) {
+		if (result) {
 			return ResponseEntity.ok("ログイン完了しました！");
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ログインに失敗しました");
 	}
-	@GetMapping(value="/login")
-	public ResponseEntity<String> getLogin(){
+
+	@GetMapping(value = "/login")
+	public ResponseEntity<String> getLogin() {
 		System.out.println(session.getId());
-		return ResponseEntity.ok((session.getAttribute("login")!=null&&(boolean)session.getAttribute("login"))?"true":"false");
+		return ResponseEntity.ok(
+				(session.getAttribute("login") != null && (boolean) session.getAttribute("login")) ? "true" : "false");
 	}
-	@PatchMapping(value="/update")
-	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product){
-		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+
+	@PatchMapping(value = "/update")
+	public ResponseEntity<String> changeDrink(@RequestBody ProductModel product) {
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
 			return ResponseEntity.ok(cServ.change_drink(product));
-		}else {
+		} else {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
 		}
 	}
-	@PostMapping(value="/register")
-	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product){
-		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
+
+	@PostMapping(value = "/order/ready")
+	public ResponseEntity<String> ready(@RequestBody String[] targets) {
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
+			return oServ.readyOrder(targets);
+		} else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+	@PostMapping(value = "/order/fill")
+	public ResponseEntity<String> fill(@RequestBody String[] targets) {
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
+			return oServ.fillOrder(targets);
+		} else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+	@PostMapping(value = "/order/delete")
+	public ResponseEntity<String> order_delete(@RequestBody String[] targets) {
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
+			return oServ.deleteOrder(targets);
+		} else {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
+		}
+	}
+
+	@PostMapping(value = "/register")
+	public ResponseEntity<String> registerDrink(@RequestBody ProductModel product) {
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
 			return ResponseEntity.ok(cServ.register_drink(product));
-		}else {
+		} else {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
 		}
 	}
-	@GetMapping(value="/product/{pid}")
-	public ResponseEntity<String> getProduct(@PathVariable String pid){
+
+	@GetMapping(value = "/product/{pid}")
+	public ResponseEntity<String> getProduct(@PathVariable String pid) {
 		return cServ.getProduct(pid);
 	}
-	@DeleteMapping(value="/delete")
-	public ResponseEntity<String> delProduct(@RequestParam String id){
-		if(session.getAttribute("login")!=null&&(boolean)session.getAttribute("login")) {
-			return  ResponseEntity.ok(cServ.delProduct(id));
-		}else {
+
+	@DeleteMapping(value = "/delete")
+	public ResponseEntity<String> delProduct(@RequestParam String id) {
+		if (session.getAttribute("login") != null && (boolean) session.getAttribute("login")) {
+			return ResponseEntity.ok(cServ.delProduct(id));
+		} else {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ログインされていません。ログイン期限が切れている可能性があります、再度ログインしてください。");
 		}
 	}
