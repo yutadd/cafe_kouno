@@ -62,15 +62,16 @@ export const Food = () => {
             <div className="food-outter" id="reserve">
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
                 <div className="food-title">WEBご予約</div>
-                <div className="food-subtitle">FOOD</div>
                 <div style={{ display: "block" }}>
                     <div className="food-image" dangerouslySetInnerHTML={{ __html: "<iframe width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/GPgSslQnMEQ\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" allowfullscreen></iframe>" }} />
                     <div className="food-text">
                         <p>商品をタップしていただくことで予約可能です。</p>
-                        <p>もう一度タップすると予約取り消しができます</p>
-                        <p>詳しくは左の動画をご覧ください</p>
+                        <p>もう一度タップすると予約取り消しができます。</p>
+                        <p>詳しくは隣の解説動画をご覧ください。</p>
                     </div>
                 </div>
+                <div className="food-subtitle">FOOD</div>
+
                 {food}
                 <div id="drink" className="food-subtitle">DRINK</div>
                 ドリンクをご予約いただくには、それぞれのサイズをタップしてください

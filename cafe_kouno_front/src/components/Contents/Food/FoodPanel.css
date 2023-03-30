@@ -21,6 +21,7 @@
 .food-panel-name {
   font-size: 40px;
   display: block;
+  font-weight: 800;
 }
 .food-panel-text {
   font-size: 30px;

@@ -1,3 +1,5 @@
+BEGIN;
+create DATABASE cafe_kouno;
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(0,'向野ブレンド',450,500,550,'甘い香りと柔らかな酸味が魅力のコロンビア豆。その中でも最高品質の豆を丁寧に焙煎し、力強いコクと甘みのある味わいにいたしました。最後の一滴まで心ゆくまでお楽しみくださいませ',true,'hot-coffee');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(1,'アメリカンコーヒー',490,540,590,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-coffee');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(2,'カフェラテ',520,580,640,'驚くほどに、ふるふるとした食感と卵の味が感じられるカフェ河野の大人気商品台湾カステラ！ チョコ',true,'hot-coffee');
@@ -15,4 +17,4 @@ insert into products(product_id,product_name,price,priceM,priceL,text,drink,cate
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(14,'たまごサンド',620,1200,1200,'本格的で、美味しい。「MIYABI」のきめ細かくて柔らかい食パンと、北海道産の新鮮なたまごを使ったたまごサラダが、まろやかで懐かしい味わい。',false,'food');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(15,'ハム＆たまごサンド',700,1200,1200,'「MIYABI」のきめ細かくて柔らかい食パンと、北海道産の新鮮なたまごを使ったたまごサラダとハムが、まろやかで懐かしい味わい。',false,'food');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(16,'カツサンド',850,1200,1200,'飽きない。美味しさ。やわらかいヒレかつと、こんがり焼いたパン、甘めのソース、口の中に美味しさがいっぱいに広がります。',false,'food');
-
+COMMIT;
