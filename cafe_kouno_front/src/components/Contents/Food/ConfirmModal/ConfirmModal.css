@@ -29,11 +29,11 @@
   right: 40px;
   font-size: 40px;
 }
-@media (max-width: 400px) {
+@media (max-width: 500px) {
   .confirm-modal-contents-outter {
-    width: 90%;
-    left: 2.5%;
-    top: 2.5%;
+    width: 90vw;
+    left: 2.5vw;
+    top: 2.5vw;
   }
 }
 .confirm-modal-products-item {

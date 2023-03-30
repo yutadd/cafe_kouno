@@ -8,8 +8,8 @@ export const Header = (props: any) => {
     const Menu = () => {
         return (<>
             <a className="menu-item" href="/#top">カフェ向野</a>
-            <a className="menu-item" href="/#food">FOOD</a>
-            <a className="menu-item" href="/#drink">DRINK</a>
+            <a className="menu-item" href="/#reserve">webご予約</a>
+            <a className="menu-item" href="/#instagram">Instagram</a>
             <a className="menu-item" href="/#access">ACCESS</a>
         </>)
     }

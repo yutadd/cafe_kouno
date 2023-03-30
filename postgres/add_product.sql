@@ -13,6 +13,6 @@ insert into products(product_id,product_name,price,priceM,priceL,text,drink,cate
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(12,'トースト',500,1200,1200,'素材にこだわった、トースト。パンは人気店の「MIYABI」、北海道の吉田牧場オリジナルバターをふんだんに使用しています。至極のトースト。',false,'food');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(13,'フレンチトースト',550,1200,1200,'シンプルなのに、美味しい。外はカリッと、内はアパレイユがじゅわっと。ボリューム満点の甘すぎないフレンチトースト',false,'food');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(14,'たまごサンド',620,1200,1200,'本格的で、美味しい。「MIYABI」のきめ細かくて柔らかい食パンと、北海道産の新鮮なたまごを使ったたまごサラダが、まろやかで懐かしい味わい。',false,'food');
-insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(15,'ハム＆たまごサンド',700,1200,1200,'本格的で、美味しい。「MIYABI」のきめ細かくて柔らかい食パンと、北海道産の新鮮なたまごを使ったたまごサラダとハムが、まろやかで懐かしい味わい。',false,'food');
+insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(15,'ハム＆たまごサンド',700,1200,1200,'「MIYABI」のきめ細かくて柔らかい食パンと、北海道産の新鮮なたまごを使ったたまごサラダとハムが、まろやかで懐かしい味わい。',false,'food');
 insert into products(product_id,product_name,price,priceM,priceL,text,drink,category) values(16,'カツサンド',850,1200,1200,'飽きない。美味しさ。やわらかいヒレかつと、こんがり焼いたパン、甘めのソース、口の中に美味しさがいっぱいに広がります。',false,'food');
 

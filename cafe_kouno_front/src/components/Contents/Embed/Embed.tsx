@@ -20,11 +20,12 @@ export const Embed = () => {
         }))
     }, [])
     return (<>
-        <div className="embed-title">公式インスタ！</div><div className="embed-outter">
+        <div id="instagram" className="embed-title">Instagram</div>
+        <div className="embed-outter">
             {igTiles}
         </div>
         {loaded && <script src="https://www.instagram.com/embed.js" />}
-        <div id="access" className="embed-map-title">アクセスマップ！</div>
+        <div id="access" className="embed-map-title">Access</div>
         <div className="embed-map" dangerouslySetInnerHTML={{
             __html: "<iframe  \
         style=\"border:0\" loading=\"lazy\" allowfullscreen\

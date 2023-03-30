@@ -59,11 +59,12 @@ export const Food = () => {
     return (<>
         <reserves.Provider value={{ reserveList: reserveLlist, setReserveList: setReserveList }}>
             <Cart onClick={() => { setShowConfirm(true) }} />
-            <div className="food-outter" id="food">
+            <div className="food-outter" id="reserve">
                 {showConfirm ? <ConfirmModal closeFunc={setShowConfirm} /> : <></>}
                 <div className="food-title">WEBご予約</div>
+                <div className="food-subtitle">FOOD</div>
                 <div style={{ display: "block" }}>
-                    <img className="food-image" src={subPath + "/images/11.webp"} alt="0.webp" />
+                    <div className="food-image" dangerouslySetInnerHTML={{ __html: "<iframe width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/GPgSslQnMEQ\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" allowfullscreen></iframe>" }} />
                     <div className="food-text">
                         <p>商品をタップしていただくことで予約可能です。</p>
                         <p>もう一度タップすると予約取り消しができます</p>
@@ -71,7 +72,7 @@ export const Food = () => {
                     </div>
                 </div>
                 {food}
-                <div id="drink" className="food-title">DRINK</div>
+                <div id="drink" className="food-subtitle">DRINK</div>
                 ドリンクをご予約いただくには、それぞれのサイズをタップしてください
                 <div className="big-category-outter">
                     <div className="sub-title">Coffee/コーヒー</div>
@@ -86,7 +87,7 @@ export const Food = () => {
                 </div>
                 <hr />
                 <div className="big-category-outter">
-                    <div className="sub-title">other/その他</div>
+                    <div className="sub-title">Other/その他</div>
                     <div className="category-outter">
                         <div className="category-title">HOT</div>
                         {hotOther}
