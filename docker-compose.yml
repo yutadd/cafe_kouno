@@ -7,9 +7,6 @@ services:
     command: ["java", "-jar", "cafe_kouno_back-0.0.1-SNAPSHOT.jar"]
     ports:
       - "8080:8080"
-      
-
-      
   front:
     image: nginx
     volumes:
