@@ -6,11 +6,11 @@
 が一緒になったプロジェクト
 
 ## デプロイされているもの
-
-フロントエンド：http://ws-hackathon2023-teams01.pencilsystems.site/
-バックエンド：yutadd.com
-例（エンドポイント：/products）：
-https://yutadd.com:8080/products
+ 
+フロントエンド：http://ws-hackathon2023-teams01.pencilsystems.site/  
+バックエンド：yutadd.com  
+例（エンドポイント：/products）：  
+https://yutadd.com:8080/products  
 
 ## 動作に必要な条件
 
