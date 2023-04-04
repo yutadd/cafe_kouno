@@ -5,6 +5,13 @@
 フロントエンド(/cafe_kouno_front)  
 が一緒になったプロジェクト
 
+## デプロイされているもの
+
+フロントエンド：http://ws-hackathon2023-teams01.pencilsystems.site/
+バックエンド：yutadd.com
+例（エンドポイント：/products）：
+https://yutadd.com:8080/products
+
 ## 動作に必要な条件
 
 ```japanese
@@ -13,12 +20,13 @@
 
 ・1 GB RAM、1 vCPU、40 GB の SSD インターネット接続
 ・ 環境変数の設定  
+```bash
 export GOOGLE_MAIL='<ご注文確認メール送信に使用する gmail メールアドレス>'  
 export GOOGLE_PASS='<ご注文確認メール送信に使用するアカウントのアプリパスワード>'  
 export FB_ACCESS_TOKEN='<フェイスブックの API 呼び出しに使うアカウントアクセストークン>'  
 export IG_USER_ID='<インスタグラムビジネスアカウントの id>'  
 export CAFE_KOUNO_PASSWORD='<bcrypt でハッシュ化された管理画面用パスワード>'  
-
+```
 ・バックエンドのコントローラー（/cafe_kouno_back/src/main/java/com/yutadd/controller/CafeController.java）  
 のクロスオリジンの設定をフロントエンドのデプロイ先のオリジンに変更
 
@@ -28,3 +36,6 @@ export CAFE_KOUNO_PASSWORD='<bcrypt でハッシュ化された管理画面用�
 
 ・フロントエンドのバックエンドのアドレス設定(/cafe_kouno_back/src/App.tsx)
 の initialValue の apiPath をバックエンドのドメイン:ポートに変更
+
+
+
